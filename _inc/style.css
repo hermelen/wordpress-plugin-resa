@@ -1,0 +1,36 @@
+td {
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+}
+
+table {
+  width: 100%;
+}
+
+th {
+  text-align: left;
+}
+
+button, input {
+  width: 100%;
+}
+
+/* form.resa-form {
+  background-color: darkgrey;
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+}
+
+form.resa-form select, form.resa-form label, form.resa-form input {
+  display: block;
+  width: 100%;
+} */
+
+select {
+  width: 100%;
+}
+
+section.days th, section.days td {
+  width: 20%;
+}
