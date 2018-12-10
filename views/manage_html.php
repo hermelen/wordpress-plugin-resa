@@ -18,29 +18,33 @@ global $wpdb;
 $last_resa = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}resa WHERE id=(SELECT max(id) FROM {$wpdb->prefix}resa)");
 $last_resa_user = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}resa_user WHERE id = $last_resa->user_id");
 $last_resa_room = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}posts WHERE ID = $last_resa->room_id");
-if ($last_resa->booked == 0) { ?>
-  <h2>Dernière resa non-validée:</h2>
-  <form class="date-form" action="#" method="post" name="date-form" style="margin-bottom: 3em;">
-    <table>
-      <tr>
-        <th>Client</th>
-        <th>Chambre</th>
-        <th><label for="start">Arrivée</label></th>
-        <th><label for="end">Départ(jour inclus)</label></th>
-        <th>Edition</th>
-        <th>Suppression</th>
-      </tr>
-      <tr>
-        <td><?= $last_resa_user->lastname ." ". $last_resa_user->firstname ." (". $last_resa_user->email .")" ?></td>
-        <td><?= $last_resa_room->post_title ?></td>
-          <td><input type="date" name="start" id="start"></td>
-          <td><input type="date" name="end" id="end"></td>
-          <td><button type="submit" class="add-date-to-resa" id="<?= $last_resa->id ?>">Valider les dates</button></td>
-          <td><button style="color: red">inactif</button></td>
-      </tr>
-    </table>
-  </form>
-<?php } ?>
+
+if (isset($last_resa)) {
+  if ($last_resa->booked == 0) { ?>
+    <h2>Dernière resa non-validée:</h2>
+    <form class="date-form" action="#" method="post" name="date-form" style="margin-bottom: 3em;">
+      <table>
+        <tr>
+          <th>Client</th>
+          <th>Chambre</th>
+          <th><label for="start">Arrivée</label></th>
+          <th><label for="end">Départ(jour inclus)</label></th>
+          <th>Edition</th>
+          <th>Suppression</th>
+        </tr>
+        <tr>
+          <td><?= $last_resa_user->lastname ." ". $last_resa_user->firstname ." (". $last_resa_user->email .")" ?></td>
+          <td><?= $last_resa_room->post_title ?></td>
+            <td><input type="date" name="start" id="start"></td>
+            <td><input type="date" name="end" id="end"></td>
+            <td><button type="submit" class="add-date-to-resa" id="<?= $last_resa->id ?>">Valider les dates</button></td>
+            <td><button style="color: red">inactif</button></td>
+        </tr>
+      </table>
+    </form>
+  <?php
+  }
+} ?>
 </section>
 
 <section class="days">

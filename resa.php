@@ -37,7 +37,7 @@ class Resa
 
     $resa_query = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}resa (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      booking BOOLEAN,
+      booked BOOLEAN,
       room_id BIGINT UNSIGNED,
       user_id INT,
       FOREIGN KEY (room_id) REFERENCES {$wpdb->prefix}posts (id),

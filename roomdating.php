@@ -39,8 +39,8 @@ class RoomDatingPlugin
 
 
 
-    register_uninstall_hook(__FILE__, array('RoomDatingPlugin', 'uninstall'));
-    // register_deactivation_hook(__FILE__, array('Resa', 'uninstall'));
+    // register_uninstall_hook(__FILE__, array('RoomDatingPlugin', 'uninstall'));
+    register_deactivation_hook(__FILE__, array('Resa', 'uninstall'));
   }
 
   public function add_admin_menu()
@@ -95,9 +95,9 @@ class RoomDatingPlugin
     if (isset($_POST['room_id']) && !empty($_POST['room_id'])) { $room_id = $_POST['room_id'];
       global $wpdb;
       $wpdb->insert("{$wpdb->prefix}resa", array(
+        'booked'=>0,
         'room_id'=>$room_id,
-        'user_id'=>$user_id,
-        'booked'=>0
+        'user_id'=>$user_id
       ));
     };
   }
