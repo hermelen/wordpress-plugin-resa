@@ -1,4 +1,6 @@
 <?php
+
+
 class RoomDatingWidget extends WP_Widget
 {
   public function __construct() {
@@ -7,7 +9,8 @@ class RoomDatingWidget extends WP_Widget
 
   public function widget($args, $instance) {?>
     <h5><?= ($instance['title']) ? $instance['title'] : '' ?></h5>
-    <div id="calendar" ></div><?php
+    <div id="calendar-widget" ></div>
+    <?php
   }
 
   public function form($instance) {
