@@ -7,38 +7,34 @@ $resas = $wpdb->get_results(
 
 $booked_days = [];
 for ($i=0; $i < count($resas) ; $i++) {
+
   $resa_id = $resas[$i]->id;
-  $booked_days[$i] = $wpdb->get_results(
-    "SELECT thedate, resa_id
+  $room_id = $resas[$i]->room_id;
+
+  $booked_days[$i]['dates'] = $wpdb->get_results(
+    "SELECT thedate
     FROM {$wpdb->prefix}resa_day
     WHERE resa_id = $resa_id
     ORDER BY thedate"
   );
-  $room_id = $resas[$i]->room_id;
   $room_title = $wpdb->get_row(
     "SELECT post_title
     FROM {$wpdb->prefix}posts
     WHERE ID = $room_id"
   );
-  print_r($room_title);
-  array_push($booked_days[$i][0], $room_title);
-  echo "<pre>";
-  print_r($booked_days[$i][0]);
-  echo "</pre>";
+  $booked_days[$i]['post_title'] = $room_title->post_title;
 };
-
-
 
 for ($i=0; $i < count($booked_days) ; $i++) {
-  $resa_id = $booked_days[$i][$i]->resa_id;
-  print_r($resa_id);
-  $first = reset($booked_days[$i]);
-  $last = end($booked_days[$i]);
-  $title = $booked_days[$i][0]->post_title;
+  $first = reset($booked_days[$i]['dates']);
+  $last = end($booked_days[$i]['dates']);
+  $title = $booked_days[$i]['post_title'];
   $booked_days[$i] = [$first, $last, $title];
-};
+}
 
-$booked_days=json_encode($booked_days); ?>
+$booked_days=json_encode($booked_days);
+
+?>
 
 
 
