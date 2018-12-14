@@ -1,6 +1,25 @@
 jQuery(document).ready(function($){
   console.log("app");
 
+  $(function() {
+    var eventsArray = [];
+    if (typeof(bookedDays) !== 'undefined') {
+      $.each(bookedDays, function(index, value){
+        eventsArray.push({
+          start: new Date(value[0].thedate),
+          end: new Date(value[1].thedate),
+          title: value[2]
+        })
+      })
+      // console.log(eventsArray);
+
+    }
+      $('#calendar-widget').fullCalendar({
+        height: "auto",
+        events: eventsArray
+      })
+  });
+
   $('.add-resa-to-user').click(function(){
     var user_id = $(this).attr('id');
     var user_data = $(this).attr('data');

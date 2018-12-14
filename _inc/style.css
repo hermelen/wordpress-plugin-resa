@@ -34,3 +34,7 @@ select {
 section.days th, section.days td {
   width: 20%;
 }
+
+#calendar-widget .fc-time{
+  display : none;
+}

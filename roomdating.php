@@ -11,13 +11,22 @@ License: GPL2
 <?php
 function my_plugin_admin_init() {
     wp_enqueue_style( 'my-plugin-style', plugins_url( '/_inc/style.css', __FILE__ ));
+    wp_enqueue_style( 'full-calendar-style', get_template_directory_uri() . '/node_modules/fullcalendar/dist/fullcalendar.min.css');
+
     wp_register_script( 'my-plugin-script', plugins_url( '/_inc/app.js', __FILE__ ));
     wp_register_script( 'my-plugin-ajax', plugins_url( '/_inc/ajax.js', __FILE__ ));
+
+  	wp_register_script( 'moment', get_template_directory_uri() . '/node_modules/moment/min/moment.min.js', array(), '20181211', true );
+  	wp_register_script( 'full-calendar-scripts', get_template_directory_uri() . '/node_modules/fullcalendar/dist/fullcalendar.min.js', array(), '20181211', true );
+  	wp_register_script( 'full-calendar-locale-scripts', get_template_directory_uri() . '/node_modules/fullcalendar/dist/locale/fr.js', array(), '20181211', true );
 }
 
 function my_plugin_admin_scripts() {
     wp_enqueue_script( 'my-plugin-script' );
     wp_enqueue_script( 'my-plugin-ajax' );
+    wp_enqueue_script( 'moment' );
+    wp_enqueue_script( 'full-calendar-scripts' );
+    wp_enqueue_script( 'full-calendar-locale-scripts' );
 }
 
 add_action('admin_init','my_plugin_admin_init');
@@ -48,7 +57,7 @@ class RoomDatingPlugin
     $resa = add_menu_page('Réservations', 'Resa', 'manage_options', 'roomdating', array($this, 'resa_html'));
     $manage = add_submenu_page('roomdating', 'Gestion des réservations', 'Gérer', 'manage_options', 'manageroomdating', array($this, 'manage_html'));
     $export = add_submenu_page('roomdating', 'Export.xls', 'Export', 'manage_options', 'exportroomdating', array($this, 'export_html'));
-    // add_action('admin_print_scripts-' . $resa, 'my_plugin_admin_scripts');
+    add_action('admin_print_scripts-' . $resa, 'my_plugin_admin_scripts');
     add_action('admin_print_scripts-' . $manage, 'my_plugin_admin_scripts');
     // add_action('admin_print_scripts-' . $export, 'my_plugin_admin_scripts');
   }
