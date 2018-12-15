@@ -61,17 +61,26 @@ $days = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}resa_day ORDER BY resa_
       <th>Edition</th>
       <th>Suppression</th>
     </tr>
-  <?php foreach ($days as $day) {
+  <?php
+  foreach ($days as $day) {
     $resa = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}resa WHERE id = $day->resa_id");
     $user_id = $resa[0]->user_id;
-    $user = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}resa_user WHERE id = $user_id"); ?>
-    <tr>
+    $user = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}resa_user WHERE id = $user_id");
+    $base_1 = substr($user_id*333, 0, 3);
+    $base_2 = substr($user_id*666, 0, 3);
+    $base_3 = substr($user_id*999, 0, 3);
+    $color_1 = ( $base_1 < 255 ) ? $base_1 : substr($base_1, 0, 2);
+    $color_2 = ( $base_2 < 255 ) ? $base_2 : substr($base_2, 0, 2);
+    $color_3 = ( $base_3 < 255 ) ? $base_3 : substr($base_3, 0, 2);
+    $color = "rgba(".$color_1.", ".$color_2.", ".$color_3.", 0.3)";
+    ?>
+    <tr style="background: <?= $color ?>">
       <td><?= $user[0]->lastname ?></td>
       <td><?= $user[0]->firstname ?></td>
       <td><?= $user[0]->email ?></td>
       <td><?= $user[0]->phone ?></td>
       <td><?= get_post($resa[0]->room_id)->post_title ?></td>
-      <td><?= $day->thedate ?></td>
+      <td class="td-date"><?= $day->thedate ?></td>
       <td><?= $day->persons ?></td>
       <td><?= $day->breakfast ?></td>
       <td><?= $day->lunch ?></td>
@@ -86,5 +95,4 @@ $days = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}resa_day ORDER BY resa_
 
 <script type="text/javascript">
   var bookedDays = <?= $booked_days ?>;
-  console.log(bookedDays);
 </script>

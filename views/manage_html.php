@@ -65,23 +65,22 @@ if (isset($last_resa)) {
       <th>Email</th>
       <th>Tél</th>
       <th>Edition</th>
-      <th>Suppression</th>
     </tr> <?php
   global $wpdb;
   $users = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}resa_user ORDER BY lastname ASC");
   foreach ($users as $user) { ?>
-    <tr>
+    <tr id="tr-user-<?= $user->id ?>">
       <td><button class="add-resa-to-user" data="<?= $user->lastname ." ". $user->firstname ." (". $user->email .")" ?>" id="<?= $user->id ?>">Nlle Resa</button></td>
       <td><?= $user->lastname ?></td>
       <td><?= $user->firstname ?></td>
       <td><?= $user->email ?></td>
       <td><?= $user->phone ?></td>
-      <td><a href="#"><button style="color: red">Inactif</button></a></td>
-      <td><a href="#"><button style="color: red">Inactif</button></a></td>
+      <td><a href="#"><button class="edit-user" id="user-<?= $user->id ?>">Modifier</button></a></td>
     </tr>
   <?php } ?>
     <tr>
       <form class="" action="#" method="post">
+        <td></td>
         <td><input type="text" name="lastname" id="lastname" value=""></td>
         <td><input type="text" name="firstname" id="firstname" value=""></td>
         <td><input type="text" name="email" id="email" value=""></td>
@@ -89,8 +88,6 @@ if (isset($last_resa)) {
         <td>
           <button type="submit" class="new-user-btn">Enreg.nouveau</button>
         </td>
-        <td></td>
-        <td></td>
       </form>
     </tr>
   </table>

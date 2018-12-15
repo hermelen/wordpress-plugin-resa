@@ -84,9 +84,20 @@ class RoomDatingPlugin
     if (isset($_POST['lastname']) && !empty($_POST['lastname'])) { $lastname = $_POST['lastname']; };
     if (isset($_POST['phone']) && !empty($_POST['phone'])) { $phone = $_POST['phone']; };
     if (isset($_POST['email']) && !empty($_POST['email'])) { $email = $_POST['email'];
+    if (isset($_POST['id']) && !empty($_POST['id'])) { $id = $_POST['id']; };
       global $wpdb;
-      $row = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}resa_user WHERE email = '$email'");
-      if (is_null($row)) {
+      if (isset($id) && !empty($id)) {
+        $wpdb->update(
+          "{$wpdb->prefix}resa_user",
+          array(
+            'firstname'=>$firstname,
+            'lastname'=>$lastname,
+            'email' => $email,
+            'phone'=>$phone
+          ),
+          array( 'id' => $id )
+        );
+      } else {
         $wpdb->insert("{$wpdb->prefix}resa_user", array(
           'firstname'=>$firstname,
           'lastname'=>$lastname,
@@ -95,7 +106,6 @@ class RoomDatingPlugin
         ));
       }
     };
-
   }
 
   public function save_resa()

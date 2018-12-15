@@ -1,25 +1,58 @@
 jQuery(document).ready(function($){
-  console.log("app");
 
   $(function() {
     var eventsArray = [];
     if (typeof(bookedDays) !== 'undefined') {
       $.each(bookedDays, function(index, value){
+        endDate = new Date(value[1].thedate);
+        endDate = endDate.setDate(endDate.getDate() + 1);
         eventsArray.push({
           start: new Date(value[0].thedate),
-          end: new Date(value[1].thedate),
+          end: endDate,
           title: value[2]
         })
       })
-      // console.log(eventsArray);
 
     }
       $('#calendar-widget').fullCalendar({
         height: "auto",
         events: eventsArray
       })
+      //------------------------DISPLAY RESA PAGE ----------------------------------
+      var today = new Date();
+      var thisMonth = dateYYYYMM(new Date());
+      console.log(thisMonth);
+
+      hideDays(thisMonth);
+
+
+      $('.fc-prev-button').click(function(){
+        today = today.setMonth(today.getMonth() - 1);
+        today = new Date(today);
+        thisMonth = dateYYYYMM(today);
+        hideDays(thisMonth);
+      })
+
+      $('.fc-next-button').click(function(){
+        today = today.setMonth(today.getMonth() + 1);
+        today = new Date(today);
+        thisMonth = dateYYYYMM(today);
+        hideDays(thisMonth);
+      })
+
+      function hideDays(checkedDays){
+        $('.td-date').each(function(){
+          $(this).closest('tr').show();
+          if (!$(this).html().startsWith(thisMonth)) {
+            $(this).closest('tr').hide();
+          }
+        })
+      }
+
   });
 
+  // ------------------------USER-------------------------------------------------
+  // add a user
   $('.add-resa-to-user').click(function(){
     var user_id = $(this).attr('id');
     var user_data = $(this).attr('data');
@@ -46,6 +79,37 @@ jQuery(document).ready(function($){
     })
   })
 
+  //edit a user
+  $('.edit-user').click(function(){
+    $('.edit-user').attr('disabled', 'disabled');
+    var user_id = $(this).attr('id');
+    user_id = user_id.replace("user-", "");
+    var lastname  = $('tr#tr-user-'+user_id+' td:nth-child(2)').html();
+    var firstname = $('tr#tr-user-'+user_id+' td:nth-child(3)').html();
+    var email     = $('tr#tr-user-'+user_id+' td:nth-child(4)').html();
+    var phone     = $('tr#tr-user-'+user_id+' td:nth-child(5)').html();
+    $('tr#tr-user-'+user_id).empty();
+    $('section.user').prepend(`
+      <form class="" action="#" method="post">
+        <table>
+          <tr>
+            <td>Modification Client<input type="hidden" name="id" value="${user_id}"></td>
+            <td><input type="text" name="lastname" value="${lastname}"></td>
+            <td><input type="text" name="firstname" value="${firstname}"></td>
+            <td><input type="text" name="email" value="${email}"></td>
+            <td><input type="text" name="phone" value="${phone}"></td>
+            <td>
+              <button type="submit" class="save-user-edition-btn">Enreg.modif</button>
+            </td>
+            <td></td>
+          </tr>
+        </table>
+      </form>
+    `);
+  })
+
+  // ------------------------DAYS-------------------------------------------------
+  // generate dates form
   $('.date-form').submit(function(e){
     e.preventDefault();
     $('section.days').empty();
@@ -73,7 +137,7 @@ jQuery(document).ready(function($){
     var resa_id = $('button.add-date-to-resa').attr('id');
     var dates = getDates(startdate, enddate);
     $.each(dates, function(key, date) {
-      var sqlDate = formatDate(date);
+      var sqlDate = dateYYYYMMDD(date);
       $('tbody#list-date').append(`
         <tr>
           <input name="thedate[${key}]" type="hidden" value="${sqlDate}">
@@ -89,38 +153,52 @@ jQuery(document).ready(function($){
   })
 
 
-// Returns an array of dates between the two dates
-var getDates = function(startDate, endDate) {
-  var dates = [],
-      currentDate = startDate,
-      addDays = function(days) {
-        var date = new Date(this.valueOf());
-        date.setDate(date.getDate() + days);
-        return date;
-      };
-  while (currentDate <= endDate) {
-    dates.push(currentDate);
-    currentDate = addDays.call(currentDate, 1);
+  // Returns an array of dates between the two dates
+  var getDates = function(startDate, endDate) {
+    var dates = [],
+        currentDate = startDate,
+        addDays = function(days) {
+          var date = new Date(this.valueOf());
+          date.setDate(date.getDate() + days);
+          return date;
+        };
+    while (currentDate <= endDate) {
+      dates.push(currentDate);
+      currentDate = addDays.call(currentDate, 1);
+    }
+    return dates;
+  };
+
+  function dateYYYYMMDD(date) {
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear();
+
+      if (month.length < 2) month = '0' + month;
+      if (day.length < 2) day = '0' + day;
+
+      return [year, month, day].join('-');
   }
-  return dates;
-};
 
-function formatDate(date) {
-    var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
+  function dateYYYYMM(date) {
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          year = d.getFullYear();
 
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
+      if (month.length < 2) month = '0' + month;
 
-    return [year, month, day].join('-');
-}
+      return [year, month].join('-');
+  }
 
 
 
 
-  // <input type="submit" value="Valider"></button>
+
+
+
+
+
 
 
 
