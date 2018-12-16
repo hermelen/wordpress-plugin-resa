@@ -12,7 +12,6 @@ jQuery(document).ready(function($){
           title: value[2]
         })
       })
-
     }
       $('#calendar-widget').fullCalendar({
         height: "auto",
@@ -25,6 +24,11 @@ jQuery(document).ready(function($){
 
       hideDays(thisMonth);
 
+      $('.fc-today-button').click(function(){
+        today = new Date();
+        thisMonth = dateYYYYMM(new Date());
+        hideDays(thisMonth);
+      })
 
       $('.fc-prev-button').click(function(){
         today = today.setMonth(today.getMonth() - 1);
@@ -101,7 +105,6 @@ jQuery(document).ready(function($){
             <td>
               <button type="submit" class="save-user-edition-btn">Enreg.modif</button>
             </td>
-            <td></td>
           </tr>
         </table>
       </form>
@@ -150,6 +153,59 @@ jQuery(document).ready(function($){
         </tr>
       `)
     });
+  })
+
+  //edit a day
+  $('.edit-day').click(function(){
+    $('.edit-day').attr('disabled', 'disabled');
+    var day_id = $(this).attr('id');
+    day_id = day_id.replace("day-", "");
+    var lastname   = $('tr#tr-day-'+day_id+' td:nth-child(1)').html();
+    var firstname  = $('tr#tr-day-'+day_id+' td:nth-child(2)').html();
+    var email      = $('tr#tr-day-'+day_id+' td:nth-child(3)').html();
+    var phone      = $('tr#tr-day-'+day_id+' td:nth-child(4)').html();
+    var room_title = $('tr#tr-day-'+day_id+' td:nth-child(5)').html();
+    var thedate    = $('tr#tr-day-'+day_id+' td:nth-child(6)').html();
+    var persons    = $('tr#tr-day-'+day_id+' td:nth-child(7)').html();
+    var breakfast  = $('tr#tr-day-'+day_id+' td:nth-child(8)').html();
+    var lunch      = $('tr#tr-day-'+day_id+' td:nth-child(9)').html();
+    var dinner     = $('tr#tr-day-'+day_id+' td:nth-child(10)').html();
+    $('tr#tr-day-'+day_id).empty();
+    $('section.day').prepend(`
+      <form class="" action="#" method="post">
+        <table style="border: 1px solid red">
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Email</th>
+            <th>Tél</th>
+            <th>Chambre</th>
+            <th>Date</th>
+            <th>Personnes</th>
+            <th>Petit-déj</th>
+            <th>Déj</th>
+            <th>Dîner</th>
+            <th>Edition</th>
+          </tr>
+          <tr>
+            <input type="hidden" name="id[0]" value="${day_id}">
+            <td>${lastname}</td>
+            <td>${firstname}</td>
+            <td>${email}</td>
+            <td>${phone}</td>
+            <td>${room_title}</td>
+            <td><input type="hidden" name="thedate[0]" value="${thedate}">${thedate}</td>
+            <td><input type="text" name="persons[0]" value="${persons}"></td>
+            <td><input type="text" name="breakfast[0]" value="${breakfast}"></td>
+            <td><input type="text" name="lunch[0]" value="${lunch}"></td>
+            <td><input type="text" name="dinner[0]" value="${dinner}"></td>
+            <td>
+              <button type="submit" class="save-day-edition-btn">Enreg.modif</button>
+            </td>
+          </tr>
+        </table>
+      </form>
+    `);
   })
 
 

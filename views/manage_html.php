@@ -75,7 +75,7 @@ if (isset($last_resa)) {
       <td><?= $user->firstname ?></td>
       <td><?= $user->email ?></td>
       <td><?= $user->phone ?></td>
-      <td><a href="#"><button class="edit-user" id="user-<?= $user->id ?>">Modifier</button></a></td>
+      <td><button class="edit-user" id="user-<?= $user->id ?>">Modifier ce client</button></td>
     </tr>
   <?php } ?>
     <tr>

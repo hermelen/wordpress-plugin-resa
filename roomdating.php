@@ -45,6 +45,8 @@ class RoomDatingPlugin
     add_action('wp_loaded', array($this, 'save_user'));
     add_action('wp_loaded', array($this, 'save_resa'));
     add_action('wp_loaded', array($this, 'save_day'));
+    add_action('wp_loaded', array($this, 'delete_day'));
+
 
 
 
@@ -91,9 +93,9 @@ class RoomDatingPlugin
           "{$wpdb->prefix}resa_user",
           array(
             'firstname'=>$firstname,
-            'lastname'=>$lastname,
-            'email' => $email,
-            'phone'=>$phone
+            'lastname' =>$lastname,
+            'email'    => $email,
+            'phone'    =>$phone
           ),
           array( 'id' => $id )
         );
@@ -123,32 +125,57 @@ class RoomDatingPlugin
 
   public function save_day()
   {
-    if (isset($_POST['resa_id']) && !empty($_POST['resa_id'])) {
+    if (isset($_POST['thedate']) && !empty($_POST['thedate'])) {
       foreach ($_POST['thedate'] as $key => $value) {
         if (isset($_POST['resa_id'][$key]) && !empty($_POST['resa_id'][$key])) { $resa_id = $_POST['resa_id'][$key]; };
         if (isset($_POST['dinner'][$key]) && !empty($_POST['dinner'][$key])) { $dinner = $_POST['dinner'][$key]; };
         if (isset($_POST['lunch'][$key]) && !empty($_POST['lunch'][$key])) { $lunch = $_POST['lunch'][$key]; };
         if (isset($_POST['breakfast'][$key]) && !empty($_POST['breakfast'][$key])) { $breakfast = $_POST['breakfast'][$key]; };
         if (isset($_POST['persons'][$key]) && !empty($_POST['persons'][$key])) { $persons = $_POST['persons'][$key]; };
+        if (isset($_POST['id'][$key]) && !empty($_POST['id'][$key])) { $id = $_POST['id'][$key]; };
         if (isset($_POST['thedate'][$key]) && !empty($_POST['thedate'][$key])) { $thedate = $_POST['thedate'][$key];
           global $wpdb;
-          $wpdb->insert("{$wpdb->prefix}resa_day", array(
-            'resa_id'   => $resa_id,
-            'dinner'    => $dinner,
-            'lunch'     => $lunch,
-            'breakfast' => $breakfast,
-            'persons'   => $persons,
-            'thedate'   => $thedate
-          ));
+          if (isset($id) && !empty($id)) {
+            $wpdb->update(
+              "{$wpdb->prefix}resa_day",
+              array(
+                'persons'   => $persons,
+                'breakfast' => $breakfast,
+                'lunch'     => $lunch,
+                'dinner'    => $dinner
+              ),
+              array( 'id' => $id )
+            );
+          } else {
+            $wpdb->insert("{$wpdb->prefix}resa_day", array(
+              'resa_id'   => $resa_id,
+              'dinner'    => $dinner,
+              'lunch'     => $lunch,
+              'breakfast' => $breakfast,
+              'persons'   => $persons,
+              'thedate'   => $thedate
+            ));
+          }
         };
       }
       $wpdb->update("{$wpdb->prefix}resa", array('booked'=>1), array('id'=>$_POST['resa_id'][0]));
     }
   }
 
-  // $_POST['name'][$key]; // make something with it
-  // $_POST['example'][$key];  // it will get the same index $key
-
+  public function delete_day()
+  {
+    if (isset($_POST['delete_day']) && !empty($_POST['delete_day'])) {
+      if (isset($_POST['delete_day_id']) && !empty($_POST['delete_day_id'])) {
+        $delete_day_id = $_POST['delete_day_id'];
+        global $wpdb;
+        $wpdb->delete( "{$wpdb->prefix}resa_day", array( 'id' => $delete_day_id ) );
+        if (isset($_POST['delete_resa_id']) && !empty($_POST['delete_resa_id'])) {
+          $delete_resa_id = $_POST['delete_resa_id'];
+          $wpdb->delete( "{$wpdb->prefix}resa", array( 'id' => $delete_resa_id ) );
+        };
+      };
+    };
+  }
 }
 
 new RoomDatingPlugin();
