@@ -12,6 +12,7 @@ License: GPL2
 function my_plugin_admin_init() {
     wp_enqueue_style( 'my-plugin-style', plugins_url( '/_inc/style.css', __FILE__ ));
     wp_enqueue_style( 'full-calendar-style', get_template_directory_uri() . '/node_modules/fullcalendar/dist/fullcalendar.min.css');
+    wp_enqueue_style(  'font-awesome', 'https://use.fontawesome.com/releases/v5.6.1/css/all.css' );
 
     wp_register_script( 'my-plugin-script', plugins_url( '/_inc/app.js', __FILE__ ));
     wp_register_script( 'my-plugin-ajax', plugins_url( '/_inc/ajax.js', __FILE__ ));
@@ -158,21 +159,21 @@ class RoomDatingPlugin
           }
         };
       }
-      $wpdb->update("{$wpdb->prefix}resa", array('booked'=>1), array('id'=>$_POST['resa_id'][0]));
+      if (isset($resa_id) && !empty($resa_id)) {
+        $wpdb->update("{$wpdb->prefix}resa", array('booked'=>1), array('id'=>$_POST['resa_id'][0]));       
+      }
     }
   }
 
   public function delete_day()
   {
-    if (isset($_POST['delete_day']) && !empty($_POST['delete_day'])) {
-      if (isset($_POST['delete_day_id']) && !empty($_POST['delete_day_id'])) {
-        $delete_day_id = $_POST['delete_day_id'];
-        global $wpdb;
-        $wpdb->delete( "{$wpdb->prefix}resa_day", array( 'id' => $delete_day_id ) );
-        if (isset($_POST['delete_resa_id']) && !empty($_POST['delete_resa_id'])) {
-          $delete_resa_id = $_POST['delete_resa_id'];
-          $wpdb->delete( "{$wpdb->prefix}resa", array( 'id' => $delete_resa_id ) );
-        };
+    if (isset($_POST['delete_day_id']) && !empty($_POST['delete_day_id'])) {
+      $delete_day_id = $_POST['delete_day_id'];
+      global $wpdb;
+      $wpdb->delete( "{$wpdb->prefix}resa_day", array( 'id' => $delete_day_id ) );
+      if (isset($_POST['delete_resa_id']) && !empty($_POST['delete_resa_id'])) {
+        $delete_resa_id = $_POST['delete_resa_id'];
+        $wpdb->delete( "{$wpdb->prefix}resa", array( 'id' => $delete_resa_id ) );
       };
     };
   }

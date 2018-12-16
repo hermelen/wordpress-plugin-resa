@@ -20,7 +20,6 @@ jQuery(document).ready(function($){
       //------------------------DISPLAY RESA PAGE ----------------------------------
       var today = new Date();
       var thisMonth = dateYYYYMM(new Date());
-      console.log(thisMonth);
 
       hideDays(thisMonth);
 
@@ -111,6 +110,18 @@ jQuery(document).ready(function($){
     `);
   })
 
+  //display user detail
+  $('button.info').click(function(){
+    var userData = JSON.parse($(this).attr('data'));
+    $('section.user_detail').empty();
+    $('section.user_detail').append(`
+        <h5>Nom: <span>${userData[0]}</h5>
+        <h5>Prénom: <span>${userData[1]}</h5>
+        <h5>E-mail: <a href="mailto:${userData[2]}">${userData[2]}</a></h5>
+        <h5>Téléphone: <span>${userData[3]}</h5>
+    `)
+  })
+
   // ------------------------DAYS-------------------------------------------------
   // generate dates form
   $('.date-form').submit(function(e){
@@ -160,26 +171,20 @@ jQuery(document).ready(function($){
     $('.edit-day').attr('disabled', 'disabled');
     var day_id = $(this).attr('id');
     day_id = day_id.replace("day-", "");
-    var lastname   = $('tr#tr-day-'+day_id+' td:nth-child(1)').html();
-    var firstname  = $('tr#tr-day-'+day_id+' td:nth-child(2)').html();
-    var email      = $('tr#tr-day-'+day_id+' td:nth-child(3)').html();
-    var phone      = $('tr#tr-day-'+day_id+' td:nth-child(4)').html();
-    var room_title = $('tr#tr-day-'+day_id+' td:nth-child(5)').html();
-    var thedate    = $('tr#tr-day-'+day_id+' td:nth-child(6)').html();
-    var persons    = $('tr#tr-day-'+day_id+' td:nth-child(7)').html();
-    var breakfast  = $('tr#tr-day-'+day_id+' td:nth-child(8)').html();
-    var lunch      = $('tr#tr-day-'+day_id+' td:nth-child(9)').html();
-    var dinner     = $('tr#tr-day-'+day_id+' td:nth-child(10)').html();
+    var room_title = $('tr#tr-day-'+day_id+' td:nth-child(2)').html();
+    var user       = $('tr#tr-day-'+day_id+' td:nth-child(3)').html();
+    var thedate    = $('tr#tr-day-'+day_id+' td:nth-child(4)').html();
+    var persons    = $('tr#tr-day-'+day_id+' td:nth-child(5)').html();
+    var breakfast  = $('tr#tr-day-'+day_id+' td:nth-child(6)').html();
+    var lunch      = $('tr#tr-day-'+day_id+' td:nth-child(7)').html();
+    var dinner     = $('tr#tr-day-'+day_id+' td:nth-child(8)').html();
     $('tr#tr-day-'+day_id).empty();
     $('section.day').prepend(`
       <form class="" action="#" method="post">
         <table style="border: 1px solid red">
           <tr>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Email</th>
-            <th>Tél</th>
             <th>Chambre</th>
+            <th>Client</th>
             <th>Date</th>
             <th>Personnes</th>
             <th>Petit-déj</th>
@@ -189,12 +194,10 @@ jQuery(document).ready(function($){
           </tr>
           <tr>
             <input type="hidden" name="id[0]" value="${day_id}">
-            <td>${lastname}</td>
-            <td>${firstname}</td>
-            <td>${email}</td>
-            <td>${phone}</td>
+            <input type="hidden" name="thedate[0]" value="${thedate}">
             <td>${room_title}</td>
-            <td><input type="hidden" name="thedate[0]" value="${thedate}">${thedate}</td>
+            <td>${user}</td>
+            <td>${thedate}</td>
             <td><input type="text" name="persons[0]" value="${persons}"></td>
             <td><input type="text" name="breakfast[0]" value="${breakfast}"></td>
             <td><input type="text" name="lunch[0]" value="${lunch}"></td>

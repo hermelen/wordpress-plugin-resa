@@ -1,7 +1,17 @@
-td {
-  /* border-bottom: 1px solid black; */
-  /* border-right: 1px solid black; */
+button.icon-btn {
+  background-color: rgba(255, 255, 255, 0);
+  border: 0;
 }
+i.far.fa-trash-alt {
+  /* color: black */
+}
+i.fas.fa-plus {
+  /* color: black */
+}
+i.far.fa-edit {
+  /* color: black */
+}
+
 
 table {
   width: 100%;
@@ -16,18 +26,6 @@ button, input {
   width: 100%;
 }
 
-/* form.resa-form {
-  background-color: darkgrey;
-  display: flex;
-  flex-direction: column;
-  max-width: 300px;
-}
-
-form.resa-form select, form.resa-form label, form.resa-form input {
-  display: block;
-  width: 100%;
-} */
-
 select {
   width: 100%;
 }
@@ -36,6 +34,36 @@ section.days th, section.days td {
   width: 20%;
 }
 
-#calendar-widget .fc-time{
+section.calendar {
+  padding: 1em;
+}
+
+#calendar-widget {
+
+}
+
+#calendar-widget .fc-time {
   display : none;
+}
+
+.fc-toolbar.fc-header-toolbar {
+  display: flex;
+  flex-direction: column;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-left {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1em;
+}
+.fc-toolbar.fc-header-toolbar .fc-right .fc-button-group{
+  width: 100%;
+  margin: 0;
+  margin-top: 1em;
+  display: flex;
+  justify-content: center;
+}
+
+.fc-toolbar.fc-header-toolbar .fc-right .fc-button-group button{
+  width:100%;
 }

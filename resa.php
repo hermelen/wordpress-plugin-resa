@@ -38,8 +38,8 @@ class Resa
     $resa_query = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}resa (
       id INT AUTO_INCREMENT PRIMARY KEY,
       booked BOOLEAN,
-      room_id BIGINT UNSIGNED,
-      user_id INT,
+      room_id BIGINT UNSIGNED NOT NULL,
+      user_id INT NOT NULL,
       FOREIGN KEY (room_id) REFERENCES {$wpdb->prefix}posts (id),
       FOREIGN KEY (user_id) REFERENCES {$wpdb->prefix}resa_user (id)
     )";
@@ -49,11 +49,11 @@ class Resa
 
     $day_query = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}resa_day (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        thedate DATE,
-        persons INT NOT NULL,
-        breakfast INT NOT NULL,
-        lunch INT NOT NULL,
-        dinner INT NOT NULL,
+        thedate DATE NOT NULL,
+        persons INT,
+        breakfast INT,
+        lunch INT,
+        dinner INT,
         resa_id INT NOT NULL,
         FOREIGN KEY (resa_id) REFERENCES {$wpdb->prefix}resa (id) )";
     // print_r($day_query);
