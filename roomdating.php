@@ -148,6 +148,32 @@ class RoomDatingPlugin
               array( 'id' => $id )
             );
           } else {
+            $this_room_id = $wpdb->get_row(
+              "SELECT room_id
+              FROM {$wpdb->prefix}resa
+              WHERE id = $resa_id"
+            );
+            $room_id = $this_room_id->room_id;
+            print_r($room_id);
+            // print_r($exist_days);
+            wp_die();
+            $exist_days = $wpdb->get_results(
+              "SELECT *
+              FROM {$wpdb->prefix}resa_day as day
+              JOIN {$wpdb->prefix}resa as resa
+              ON day.resa_id = resa.id
+              WHERE thedate = \"$thedate\"
+              AND WHERE room_id = $room_id"
+            );
+            // if (!empty($exist_days)) {
+            //   foreach ($exist_days as $exist_day) {
+            //     $resaRoomMatch = $wpdb->get_row(
+            //       "SELECT *
+            //       FROM {$wpdb->prefix}resa
+            //       WHERE id = $exist_day->resa_id"
+            //     );
+            //   }
+            // }
             $wpdb->insert("{$wpdb->prefix}resa_day", array(
               'resa_id'   => $resa_id,
               'dinner'    => $dinner,
@@ -160,7 +186,7 @@ class RoomDatingPlugin
         };
       }
       if (isset($resa_id) && !empty($resa_id)) {
-        $wpdb->update("{$wpdb->prefix}resa", array('booked'=>1), array('id'=>$_POST['resa_id'][0]));       
+        $wpdb->update("{$wpdb->prefix}resa", array('booked'=>1), array('id'=>$_POST['resa_id'][0]));
       }
     }
   }

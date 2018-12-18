@@ -1,23 +1,23 @@
 <?php
 class Resa
 {
-  private $startdate;
-  private $enddate;
-  private $room;
-  private $firstname;
-  private $lastname;
-  private $person;
-  private $breakfast;
-  private $lunch;
-  private $dinner;
-  private $booked;
-  private $email;
-
-  public function __construct($room, $start_date)
-  {
-    $this->setStartDate($start_date);
-    $this->setRoom($room);
-  }
+  // private $startdate;
+  // private $enddate;
+  // private $room;
+  // private $firstname;
+  // private $lastname;
+  // private $person;
+  // private $breakfast;
+  // private $lunch;
+  // private $dinner;
+  // private $booked;
+  // private $email;
+  //
+  // public function __construct($room, $start_date)
+  // {
+  //   $this->setStartDate($start_date);
+  //   $this->setRoom($room);
+  // }
 
   public static function install()
   {
