@@ -1,0 +1,81 @@
+button.icon-btn {
+  background-color: rgba(255, 255, 255, 0);
+  border: 0;
+}
+i.far.fa-trash-alt {
+  /* color: black */
+}
+i.fas.fa-plus {
+  /* color: black */
+}
+i.far.fa-edit {
+  /* color: black */
+}
+
+
+table {
+  width: 100%;
+  font-size: 14px;
+  th {
+    text-align: left;
+  }
+  button, input {
+    width: 100%;
+  }
+  select {
+    width: 100%;
+  }
+}
+
+
+section.days, section.days {
+  th, td {
+    width: 20%;
+  }
+}
+
+
+// section.calendar {
+//   position: fixed;
+//   right: 0;
+//   margin-top: -5em;
+// }
+
+/* section.day {
+  margin-top: 3em;
+} */
+
+/* div#screen-meta {
+  display: inline;
+} */
+
+#calendar-widget {
+  padding: 0 1em 0 1em;
+  .fc-time {
+    display : none;
+  }
+}
+
+.fc-toolbar.fc-header-toolbar {
+  display: flex;
+  flex-direction: column;
+  .fc-left {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1em;
+  }
+  .fc-right .fc-button-group{
+    width: 100%;
+    margin: 0;
+    margin-top: 1em;
+    display: flex;
+    justify-content: center;
+    .fc-button-group button{
+      width:100%;
+    }
+  }
+}
+
+.edit-day-form table {
+  width: 1000px;
+}

@@ -16,8 +16,12 @@ $jsonRooms = json_encode($selectRooms); ?>
 <section class="date"><?php
 global $wpdb;
 $last_resa = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}resa WHERE id=(SELECT max(id) FROM {$wpdb->prefix}resa)");
-$last_resa_user = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}resa_user WHERE id = $last_resa->user_id");
-$last_resa_room = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}posts WHERE ID = $last_resa->room_id");
+if (isset($last_resa) && !empty($last_resa)) {
+  $last_resa_user = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}resa_user WHERE id = $last_resa->user_id");
+}
+if (isset($last_resa) && !empty($last_resa)) {
+  $last_resa_room = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}posts WHERE ID = $last_resa->room_id");
+}
 
 if (isset($last_resa)) {
   if ($last_resa->booked == 0) { ?>

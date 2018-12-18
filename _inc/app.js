@@ -155,12 +155,12 @@ jQuery(document).ready(function($){
       $('tbody#list-date').append(`
         <tr>
           <input name="thedate[${key}]" type="hidden" value="${sqlDate}">
+          <input name="resa_id[${key}]" type="hidden" value="${resa_id}"></td>
           <td>${sqlDate}</td>
           <td><input name="persons[${key}]" type="number"></td>
           <td><input name="breakfast[${key}]" type="number"></td>
           <td><input name="lunch[${key}]" type="number"></td>
           <td><input name="dinner[${key}]" type="number"></td>
-          <input name="resa_id[${key}]" type="hidden" value="${resa_id}"></td>
         </tr>
       `)
     });
@@ -170,6 +170,7 @@ jQuery(document).ready(function($){
   $('.edit-day').click(function(){
     $('.edit-day').attr('disabled', 'disabled');
     var day_id = $(this).attr('id');
+    var resa_id = $('button.edit-day').attr('resa_id');
     day_id = day_id.replace("day-", "");
     var room_title = $('tr#tr-day-'+day_id+' td:nth-child(2)').html();
     var user       = $('tr#tr-day-'+day_id+' td:nth-child(3)').html();
@@ -179,8 +180,8 @@ jQuery(document).ready(function($){
     var lunch      = $('tr#tr-day-'+day_id+' td:nth-child(7)').html();
     var dinner     = $('tr#tr-day-'+day_id+' td:nth-child(8)').html();
     $('tr#tr-day-'+day_id).empty();
-    $('section.day').prepend(`
-      <form class="" action="#" method="post">
+    $('section.edit').prepend(`
+      <form class="edit-day-form" action="#" method="post">
         <table style="border: 1px solid red">
           <tr>
             <th>Chambre</th>
@@ -195,6 +196,7 @@ jQuery(document).ready(function($){
           <tr>
             <input type="hidden" name="id[0]" value="${day_id}">
             <input type="hidden" name="thedate[0]" value="${thedate}">
+            <input type="hidden" name="resa_id[0]" value="${resa_id}">
             <td>${room_title}</td>
             <td>${user}</td>
             <td>${thedate}</td>
