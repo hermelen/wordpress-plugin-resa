@@ -10,7 +10,7 @@ License: GPL2
 */ ?>
 <?php
 function my_plugin_admin_init() {
-    wp_enqueue_style( 'my-plugin-style', plugins_url( '/_inc/style.css', __FILE__ ));
+    wp_enqueue_style( 'my-plugin-style', plugins_url( '/_inc/css/style.css', __FILE__ ));
     wp_enqueue_style( 'full-calendar-style', get_template_directory_uri() . '/node_modules/fullcalendar/dist/fullcalendar.min.css');
     wp_enqueue_style(  'font-awesome', 'https://use.fontawesome.com/releases/v5.6.1/css/all.css' );
 
@@ -137,51 +137,50 @@ class RoomDatingPlugin
         if (isset($_POST['thedate'][$key]) && !empty($_POST['thedate'][$key])) {
           $thedate = $_POST['thedate'][$key];
           global $wpdb;
-          $this_resa = $wpdb->get_row(
-            "SELECT room_id, user_id
-            FROM {$wpdb->prefix}resa
-            WHERE id = $resa_id"
-          );
-          $room_id = $this_resa->room_id;
-          $user_id = $this_resa->user_id;
-          $exist_days = $wpdb->get_results(
-            "SELECT *
-            FROM {$wpdb->prefix}resa_day as day
-            JOIN {$wpdb->prefix}resa as resa
-            ON day.resa_id = resa.id
-            WHERE thedate = \"$thedate\"
-            AND resa.room_id = $room_id
-            "
-          );
-          if (!empty($exist_days)) {
-            $the_room_name = $wpdb->get_row(
-              "SELECT post_title
-              FROM {$wpdb->prefix}posts
-              WHERE id = $room_id"
+          if (isset($id) && !empty($id)) {
+            $wpdb->update(
+              "{$wpdb->prefix}resa_day",
+              array(
+                'persons'   => $persons,
+                'breakfast' => $breakfast,
+                'lunch'     => $lunch,
+                'dinner'    => $dinner
+              ),
+              array( 'id' => $id )
             );
-            $the_user = $wpdb->get_row(
-              "SELECT *
-              FROM {$wpdb->prefix}resa_user
-              WHERE id = $user_id"
-            ); ?>
-            <?php
-            foreach ($exist_days as $exist_day) {
-              $date = new DateTime($exist_day->thedate); ?>
-                <p style="text-align: center; color: red">En date du <?= $date->format('d/m/Y') ?>, une réservation pour le <?= $the_room_name->post_title ?> pour <?= $the_user->lastname." ".$the_user->firstname ?> est déjà enregistrée, aucune date de la réservation n'a été enregistrée.</p>
-                <?php
-            }
           } else {
-            if (isset($id) && !empty($id)) {
-              $wpdb->update(
-                "{$wpdb->prefix}resa_day",
-                array(
-                  'persons'   => $persons,
-                  'breakfast' => $breakfast,
-                  'lunch'     => $lunch,
-                  'dinner'    => $dinner
-                ),
-                array( 'id' => $id )
-              );
+            $this_resa = $wpdb->get_row(
+              "SELECT room_id, user_id
+              FROM {$wpdb->prefix}resa
+              WHERE id = $resa_id"
+            );
+            $room_id = $this_resa->room_id;
+            $exist_days = $wpdb->get_results(
+              "SELECT *
+              FROM {$wpdb->prefix}resa_day as day
+              JOIN {$wpdb->prefix}resa as resa
+              ON day.resa_id = resa.id
+              WHERE thedate = \"$thedate\"
+              AND resa.room_id = $room_id
+              "
+            );
+            if (!empty($exist_days)) {
+              $the_room_name = $wpdb->get_row(
+                "SELECT post_title
+                FROM {$wpdb->prefix}posts
+                WHERE id = $room_id"
+              ); ?>
+              <?php
+              foreach ($exist_days as $exist_day) {
+                $date = new DateTime($exist_day->thedate); ?>
+                  <section class="alert"  style="color: white; background: red; margin: 0 15% 0 15%">
+                    <p>En date du <?= $date->format('d/m/Y') ?>, une réservation pour le <?= $the_room_name->post_title ?> est déjà enregistrée.</p>
+                    <p>Toutes les dates antérieures ont été annulée.</p>
+                  </section>
+                  <?php
+              }
+              $wpdb->delete( "{$wpdb->prefix}resa_day", array( 'resa_id' => $resa_id ) );
+              $wpdb->update( "{$wpdb->prefix}resa", array( 'booked' => 0 ), array( 'id' => $resa_id ) );
             } else {
               $wpdb->insert("{$wpdb->prefix}resa_day", array(
                 'resa_id'   => $resa_id,

@@ -63,14 +63,14 @@ jQuery(document).ready(function($){
       <form class="resa-form" action="#" method="post" style="margin-bottom: 3em">
         <table>
           <tr>
-            <th><h3><label for="user_id">${user_data}</label><h3></th>
+            <th><h3><label for="user_id">Choisir une chambre pour:</label><h3></th>
             <th><label for="room_id">Chambre</label></th>
             <th>Edition</th>
           </tr>
           <tr>
             <td>${user_data}<input type="hidden" name="user_id" id="user_id" value="${user_id}"></td>
             <td><select id="room_id" name="room_id"></select></td>
-            <td><button type="submit" class="save-resa-to-user" id="${user_id}">Enregistrer</button></td>
+            <td><button type="submit" class="save-resa-to-user" id="${user_id}"><i class="far fa-save"> Valider</button></td>
           </tr>
         </table>
       </form>

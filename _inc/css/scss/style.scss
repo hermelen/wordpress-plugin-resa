@@ -51,8 +51,9 @@ section.days, section.days {
 
 #calendar-widget {
   padding: 0 1em 0 1em;
-  .fc-time {
+  .fc-day-grid-event .fc-time {
     display : none;
+    // color: red !important;
   }
 }
 

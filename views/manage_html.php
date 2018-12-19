@@ -63,34 +63,34 @@ if (isset($last_resa)) {
 <section class="user">
   <table>
     <tr>
-      <th>Ajouter Resa</th>
       <th>Nom</th>
       <th>Prénom</th>
       <th>Email</th>
       <th>Tél</th>
-      <th>Edition</th>
+      <th>Résa</th>
+      <th>Client</th>
     </tr> <?php
   global $wpdb;
   $users = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}resa_user ORDER BY lastname ASC");
   foreach ($users as $user) { ?>
     <tr id="tr-user-<?= $user->id ?>">
-      <td><button class="add-resa-to-user" data="<?= $user->lastname ." ". $user->firstname ." (". $user->email .")" ?>" id="<?= $user->id ?>">Nlle Resa</button></td>
       <td><?= $user->lastname ?></td>
       <td><?= $user->firstname ?></td>
       <td><?= $user->email ?></td>
       <td><?= $user->phone ?></td>
-      <td><button class="edit-user" id="user-<?= $user->id ?>">Modifier ce client</button></td>
+      <td><button class="add-resa-to-user" data="<?= $user->lastname ." ". $user->firstname ." (". $user->email .")" ?>" id="<?= $user->id ?>"><i class="fas fa-plus"></i> Nlle Resa</button></td>
+      <td><button class="edit-user" id="user-<?= $user->id ?>"><i class="fas fa-edit"></i> Modifier ce client</button></td>
     </tr>
   <?php } ?>
     <tr>
       <form class="" action="#" method="post">
-        <td></td>
-        <td><input type="text" name="lastname" id="lastname" value=""></td>
-        <td><input type="text" name="firstname" id="firstname" value=""></td>
-        <td><input type="text" name="email" id="email" value=""></td>
-        <td><input type="text" name="phone" id="phone" value=""></td>
-        <td>
-          <button type="submit" class="new-user-btn">Enreg.nouveau</button>
+        <td style="border-top: 1px solid black;"><input type="text" name="lastname" id="lastname" value="" placeholder="Nom nouveau client"></td>
+        <td style="border-top: 1px solid black;"><input type="text" name="firstname" id="firstname" value="" placeholder="Prénom nouveau client"></td>
+        <td style="border-top: 1px solid black;"><input type="text" name="email" id="email" value="" placeholder="e-mail nouveau client"></td>
+        <td style="border-top: 1px solid black;"><input type="text" name="phone" id="phone" value="" placeholder="téléphone nouveau client"></td>
+        <td style="border-top: 1px solid black;"></td>
+        <td style="border-top: 1px solid black;">
+          <button type="submit" class="new-user-btn" style="width: 100%"><i class="fas fa-plus"></i> Ajouter un client</button>
         </td>
       </form>
     </tr>
