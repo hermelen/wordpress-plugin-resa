@@ -253,6 +253,62 @@ jQuery(document).ready(function($){
   }
 
 
+  // Excel export DISPLAY
+
+  var number = $('th').length;
+  number -= 2;
+
+  for (var i = 0; i < number; i++) {
+    var totPersons = 0;
+    tdPersons = $('.persons-'+i);
+    tdPersons.each(function(){
+      if ($(this).html() != '') {
+        totPersons += parseInt($(this).html());
+      };
+    })
+    if ( totPersons == 0 ) { totPersons = "" }
+    $('tr#total-persons').append(`
+      <td>${totPersons}</td>
+    `)
+
+    var totBreakfast = 0;
+    tdBreakfast = $('.breakfast-'+i);
+    tdBreakfast.each(function(){
+      if ($(this).html() != '') {
+        totBreakfast += parseInt($(this).html());
+      };
+    })
+    if ( totBreakfast == 0 ) { totBreakfast = "" }
+    $('tr#total-breakfast').append(`
+      <td>${totBreakfast}</td>
+    `)
+
+    var totLunch = 0;
+    tdLunch = $('.lunch-'+i);
+    tdLunch.each(function(){
+      if ($(this).html() != '') {
+        totLunch += parseInt($(this).html());
+      };
+    })
+    if ( totLunch == 0 ) { totLunch = "" }
+    $('tr#total-lunch').append(`
+      <td>${totLunch}</td>
+    `)
+
+    var totDinner = 0;
+    tdDinner = $('.dinner-'+i);
+    tdDinner.each(function(){
+      if ($(this).html() != '') {
+        totDinner += parseInt($(this).html());
+      };
+    })
+    if ( totDinner == 0 ) { totDinner = "" }
+    $('tr#total-dinner').append(`
+      <td>${totDinner}</td>
+    `)
+  }
+
+
 
 
 

@@ -62,7 +62,7 @@ class RoomDatingPlugin
     $export = add_submenu_page('roomdating', 'Export.xls', 'Export', 'manage_options', 'exportroomdating', array($this, 'export_html'));
     add_action('admin_print_scripts-' . $resa, 'my_plugin_admin_scripts');
     add_action('admin_print_scripts-' . $manage, 'my_plugin_admin_scripts');
-    // add_action('admin_print_scripts-' . $export, 'my_plugin_admin_scripts');
+    add_action('admin_print_scripts-' . $export, 'my_plugin_admin_scripts');
   }
 
 

@@ -80,3 +80,9 @@ section.days, section.days {
 .edit-day-form table {
   width: 1000px;
 }
+
+table.excel {
+  th, td {
+    border: 1px solid black;
+  }
+}
