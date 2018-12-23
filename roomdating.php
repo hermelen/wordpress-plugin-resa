@@ -11,8 +11,9 @@ License: GPL2
 <?php
 function my_plugin_admin_init() {
     wp_enqueue_style( 'my-plugin-style', plugins_url( '/_inc/css/style.css', __FILE__ ));
+    wp_enqueue_style( 'bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css' );
     wp_enqueue_style( 'full-calendar-style', get_template_directory_uri() . '/node_modules/fullcalendar/dist/fullcalendar.min.css');
-    wp_enqueue_style(  'font-awesome', 'https://use.fontawesome.com/releases/v5.6.1/css/all.css' );
+    wp_enqueue_style( 'font-awesome', 'https://use.fontawesome.com/releases/v5.6.1/css/all.css' );
 
     wp_register_script( 'my-plugin-script', plugins_url( '/_inc/app.js', __FILE__ ));
     wp_register_script( 'my-plugin-ajax', plugins_url( '/_inc/ajax.js', __FILE__ ));
@@ -47,6 +48,7 @@ class RoomDatingPlugin
     add_action('wp_loaded', array($this, 'save_resa'));
     add_action('wp_loaded', array($this, 'save_day'));
     add_action('wp_loaded', array($this, 'delete_day'));
+    add_action('wp_loaded', array($this, 'delete_resa'));
 
 
 
@@ -113,7 +115,8 @@ class RoomDatingPlugin
 
   public function save_resa()
   {
-    if (isset($_POST['user_id']) && !empty($_POST['user_id'])) { $user_id = $_POST['user_id']; };
+    if (isset($_POST['user_id']) && !empty($_POST['user_id'])) { $user_id = $_POST['user_id'];
+    };
     if (isset($_POST['room_id']) && !empty($_POST['room_id'])) { $room_id = $_POST['room_id'];
       global $wpdb;
       $wpdb->insert("{$wpdb->prefix}resa", array(
@@ -121,6 +124,16 @@ class RoomDatingPlugin
         'room_id'=>$room_id,
         'user_id'=>$user_id
       ));
+    };
+  }
+
+  public function delete_resa()
+  {
+    if (isset($_POST['resa_id']) && !empty($_POST['resa_id'])) { $resa_id = $_POST['resa_id'];
+    };
+    if (isset($_POST['delete_day']) && !empty($_POST['delete_day'])) { $delete_day = $_POST['delete_day'];
+      global $wpdb;
+      $wpdb->delete( "{$wpdb->prefix}resa", array( 'id' => $resa_id ) );
     };
   }
 

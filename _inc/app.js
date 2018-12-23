@@ -61,17 +61,27 @@ jQuery(document).ready(function($){
     var user_data = $(this).attr('data');
     $('section.resa').append(`
       <form class="resa-form" action="#" method="post" style="margin-bottom: 3em">
-        <table>
-          <tr>
-            <th><h3><label for="user_id">Choisir une chambre pour:</label><h3></th>
-            <th><label for="room_id">Chambre</label></th>
-            <th>Edition</th>
-          </tr>
-          <tr>
-            <td>${user_data}<input type="hidden" name="user_id" id="user_id" value="${user_id}"></td>
-            <td><select id="room_id" name="room_id"></select></td>
-            <td><button type="submit" class="save-resa-to-user" id="${user_id}"><i class="far fa-save"> Valider</button></td>
-          </tr>
+        <table class="table table-dark">
+          <thead>
+            <tr>
+              <th><label for="user_id">Choisir une chambre pour:</label></th>
+              <th><label for="room_id">Chambre</label></th>
+              <th>Edition</th>
+            </tr>
+          </thaed>
+          <tbody>
+            <tr>
+              <td>${user_data}<input type="hidden" name="user_id" id="user_id" value="${user_id}"></td>
+              <td>
+                <select class="form-control" id="room_id" name="room_id"></select>
+              </td>
+              <td>
+                <button class="btn btn-secondary" type="submit" class="save-resa-to-user" id="${user_id}">
+                  <i class="far fa-save"></i> Valider
+                </button>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </form>
     `)
@@ -87,49 +97,69 @@ jQuery(document).ready(function($){
     $('.edit-user').attr('disabled', 'disabled');
     var user_id = $(this).attr('id');
     user_id = user_id.replace("user-", "");
-    var lastname  = $('tr#tr-user-'+user_id+' td:nth-child(2)').html();
-    var firstname = $('tr#tr-user-'+user_id+' td:nth-child(3)').html();
-    var email     = $('tr#tr-user-'+user_id+' td:nth-child(4)').html();
-    var phone     = $('tr#tr-user-'+user_id+' td:nth-child(5)').html();
+    var lastname  = $('tr#tr-user-'+user_id+' td:nth-child(1)').html();
+    var firstname = $('tr#tr-user-'+user_id+' td:nth-child(2)').html();
+    var email     = $('tr#tr-user-'+user_id+' td:nth-child(3)').html();
+    var phone     = $('tr#tr-user-'+user_id+' td:nth-child(4)').html();
     $('tr#tr-user-'+user_id).empty();
     $('section.user').prepend(`
       <form class="" action="#" method="post">
-        <table>
-          <tr>
-            <td>Modification Client<input type="hidden" name="id" value="${user_id}"></td>
-            <td><input type="text" name="lastname" value="${lastname}"></td>
-            <td><input type="text" name="firstname" value="${firstname}"></td>
-            <td><input type="text" name="email" value="${email}"></td>
-            <td><input type="text" name="phone" value="${phone}"></td>
-            <td>
-              <button type="submit" class="save-user-edition-btn">Enreg.modif</button>
-            </td>
-          </tr>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td>Modification Client <input type="hidden" name="id" value="${user_id}"> </td>
+              <td><input type="text" class="form-control" name="lastname" value="${lastname}"></td>
+              <td><input type="text" class="form-control" name="firstname" value="${firstname}"></td>
+              <td><input type="text" class="form-control" name="email" value="${email}"></td>
+              <td><input type="text" class="form-control" name="phone" value="${phone}"></td>
+              <td>
+                <button type="submit" class="save-user-edition-btn btn btn-secondary">Enreg.modif</button>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </form>
     `);
   })
 
   //display user detail
-  $('button.info').click(function(){
+  $('button.info').click(function(e){
+    e.preventDefault();
     var userData = JSON.parse($(this).attr('data'));
     $('section.user_detail').empty();
     $('section.user_detail').append(`
-        <h5>Nom: <span>${userData[0]}</h5>
-        <h5>Prénom: <span>${userData[1]}</h5>
-        <h5>E-mail: <a href="mailto:${userData[2]}">${userData[2]}</a></h5>
-        <h5>Téléphone: <span>${userData[3]}</h5>
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">${userData[0].toUpperCase()}</h5>
+          <h6>${userData[1]}</h6>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><a href="mailto:${userData[2]}">${userData[2]}</a></li>
+          <li class="list-group-item">${userData[3]}</li>
+        </ul>
+        <div class="card-body">
+          <a href="#" class="card-link"><button class="btn btn-primary" id="close-detail"><i class="fas fa-times"></i> Fermer</button></a>
+        </div>
+      </div>
     `)
+    $('button#close-detail').click(function(){
+      $('section.user_detail').empty();
+    })
   })
 
   // ------------------------DAYS-------------------------------------------------
   // generate dates form
-  $('.date-form').submit(function(e){
+  $('.add-date-to-resa').click(function(e){
     e.preventDefault();
+    var user_data = $(".pending_user_data").html();
+    var room_data = $(".pending_room_data").html();
+    $('.date-form').hide();
     $('section.days').empty();
     $('section.days').append(`
-      <form action="#" method="post" style="margin-bottom: 3em">
-        <table>
+      <form action="#" method="post" style="margin-bottom: 3em" class="text-center">
+        <h3>${user_data}</h3>
+        <h4>${room_data}</h4>
+        <table class="table-dark">
           <thead>
             <tr>
               <th><label for="thedate">Jour</label></th>
@@ -137,13 +167,12 @@ jQuery(document).ready(function($){
               <th><label for="breakfast">Nbr.Petit-déj</label></th>
               <th><label for="lunch">Nbr.Déj</label></th>
               <th><label for="dinner">Nbr.Dîner</label></th>
-              <label for="resa_id"></label>
             </tr>
           </thead>
           <tbody id="list-date">
           </tbody>
         </table>
-        <button id="submit-all" type="submit">Valider toutes les dates</button>
+        <button id="submit-all" type="submit" class="btn btn-success">Valider toutes les dates</button>
       </form>
     `)
     var startdate = new Date($('input#start').val());
@@ -157,10 +186,10 @@ jQuery(document).ready(function($){
           <input name="thedate[${key}]" type="hidden" value="${sqlDate}">
           <input name="resa_id[${key}]" type="hidden" value="${resa_id}"></td>
           <td>${sqlDate}</td>
-          <td><input name="persons[${key}]" type="number"></td>
-          <td><input name="breakfast[${key}]" type="number"></td>
-          <td><input name="lunch[${key}]" type="number"></td>
-          <td><input name="dinner[${key}]" type="number"></td>
+          <td><input class="form-control" name="persons[${key}]" type="number"></td>
+          <td><input class="form-control" name="breakfast[${key}]" type="number"></td>
+          <td><input class="form-control" name="lunch[${key}]" type="number"></td>
+          <td><input class="form-control" name="dinner[${key}]" type="number"></td>
         </tr>
       `)
     });
@@ -180,36 +209,25 @@ jQuery(document).ready(function($){
     var lunch      = $('tr#tr-day-'+day_id+' td:nth-child(7)').html();
     var dinner     = $('tr#tr-day-'+day_id+' td:nth-child(8)').html();
     $('tr#tr-day-'+day_id).empty();
-    $('section.edit').prepend(`
-      <form class="edit-day-form" action="#" method="post">
-        <table style="border: 1px solid red">
-          <tr>
-            <th>Chambre</th>
-            <th>Client</th>
-            <th>Date</th>
-            <th>Personnes</th>
-            <th>Petit-déj</th>
-            <th>Déj</th>
-            <th>Dîner</th>
-            <th>Edition</th>
-          </tr>
-          <tr>
-            <input type="hidden" name="id[0]" value="${day_id}">
-            <input type="hidden" name="thedate[0]" value="${thedate}">
-            <input type="hidden" name="resa_id[0]" value="${resa_id}">
-            <td>${room_title}</td>
-            <td>${user}</td>
-            <td>${thedate}</td>
-            <td><input type="text" name="persons[0]" value="${persons}"></td>
-            <td><input type="text" name="breakfast[0]" value="${breakfast}"></td>
-            <td><input type="text" name="lunch[0]" value="${lunch}"></td>
-            <td><input type="text" name="dinner[0]" value="${dinner}"></td>
-            <td>
-              <button type="submit" class="save-day-edition-btn">Enreg.modif</button>
-            </td>
-          </tr>
-        </table>
-      </form>
+    $('tr#tr-day-'+day_id).html(`
+      <td></td>
+      <input type="hidden" name="id[0]" value="${day_id}">
+      <input type="hidden" name="thedate[0]" value="${thedate}">
+      <input type="hidden" name="resa_id[0]" value="${resa_id}">
+      <td style="color: red">${room_title}</td>
+      <td style="color: red">${user}</td>
+      <td style="color: red">${thedate}</td>
+      <td><input class="form-control" type="text" name="persons[0]" value="${persons}"></td>
+      <td><input class="form-control" type="text" name="breakfast[0]" value="${breakfast}"></td>
+      <td><input class="form-control" type="text" name="lunch[0]" value="${lunch}"></td>
+      <td><input class="form-control" type="text" name="dinner[0]" value="${dinner}"></td>
+      <td>
+        <button class="icon-btn save-day">
+          <i class="far fa-save" style="color: red"></i>
+        </button>
+      </td>
+      <td></td>
+      <td></td>
     `);
   })
 
@@ -311,23 +329,34 @@ jQuery(document).ready(function($){
 
 
 
+  // EXPORT xls
+  $("#btnExport").click(function(){
+      var tab_text="<table border='2px'><tr bgcolor='#87AFC6'>";
+      var textRange; var j=0;
+      tab = document.getElementById('headerTable'); // id of table
 
+      for(j = 0 ; j < tab.rows.length ; j++)
+      {
+          tab_text=tab_text+tab.rows[j].innerHTML+"</tr>";
+      }
 
+      tab_text=tab_text+"</table>";
 
+      var ua = window.navigator.userAgent;
+      var msie = ua.indexOf("MSIE ");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+      if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+      {
+          txtArea1.document.open("txt/html","replace");
+          txtArea1.document.write(tab_text);
+          txtArea1.document.close();
+          txtArea1.focus();
+          sa=txtArea1.document.execCommand("SaveAs",true,"Say Thanks to Sumit.xls");
+      }
+      else                 //other browser not tested on IE 11
+          sa = window.open('data:application/vnd.ms-excel, %EF%BB%BF' + encodeURIComponent(tab_text));
+      return (sa);
+  })
 
 
 
