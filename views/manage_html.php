@@ -3,8 +3,8 @@ $rooms = get_posts( array(
   'post_type' => 'page',
   'post_status' => 'publish',
   'meta_key' => 'roomdating',
-  'meta_value' => 'room'
 ) );
+
 $selectRooms = [];
 foreach ($rooms as $room) {
   array_push($selectRooms, [$room->ID, $room->post_title]);

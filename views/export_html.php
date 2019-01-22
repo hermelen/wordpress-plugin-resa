@@ -58,10 +58,9 @@ if (isset($_POST['week']) && !empty($_POST['week'])) {
   }
 
   $rooms = get_posts( array(
-    'meta_key' => 'page',
     'post_type' => 'page',
     'post_status' => 'publish',
-    'meta_value' => 'chambre'
+    'meta_key' => 'roomdating',
   ) );
   ?>
   <iframe id="txtArea1" style="display:none"></iframe>
