@@ -10,10 +10,10 @@ License: GPL2
 */ ?>
 <?php
 function my_plugin_admin_init() {
-    wp_enqueue_style( 'my-plugin-style', plugins_url( '/_inc/css/style.css', __FILE__ ));
     wp_enqueue_style( 'bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css' );
     wp_enqueue_style( 'full-calendar-style', get_template_directory_uri() . '/node_modules/fullcalendar/dist/fullcalendar.min.css');
     wp_enqueue_style( 'font-awesome', 'https://use.fontawesome.com/releases/v5.6.1/css/all.css' );
+    wp_enqueue_style( 'my-plugin-style', plugins_url( '/_inc/css/style.css', __FILE__ ));
 
     wp_register_script( 'my-plugin-script', plugins_url( '/_inc/app.js', __FILE__ ));
     wp_register_script( 'my-plugin-ajax', plugins_url( '/_inc/ajax.js', __FILE__ ));
@@ -85,11 +85,11 @@ class RoomDatingPlugin
 
   public function save_user()
   {
-    if (isset($_POST['firstname']) && !empty($_POST['firstname'])) { $firstname = $_POST['firstname']; };
-    if (isset($_POST['lastname']) && !empty($_POST['lastname'])) { $lastname = $_POST['lastname']; };
-    if (isset($_POST['phone']) && !empty($_POST['phone'])) { $phone = $_POST['phone']; };
-    if (isset($_POST['email']) && !empty($_POST['email'])) { $email = $_POST['email'];
-    if (isset($_POST['id']) && !empty($_POST['id'])) { $id = $_POST['id']; };
+    if (isset($_POST['resa_firstname']) && !empty($_POST['resa_firstname'])) { $firstname = $_POST['resa_firstname']; };
+    if (isset($_POST['resa_lastname']) && !empty($_POST['resa_lastname'])) { $lastname = $_POST['resa_lastname']; };
+    if (isset($_POST['resa_phone']) && !empty($_POST['resa_phone'])) { $phone = $_POST['resa_phone']; };
+    if (isset($_POST['resa_email']) && !empty($_POST['resa_email'])) { $email = $_POST['resa_email'];
+    if (isset($_POST['resa_id']) && !empty($_POST['resa_id'])) { $id = $_POST['resa_id']; };
       global $wpdb;
       if (isset($id) && !empty($id)) {
         $wpdb->update(
@@ -146,6 +146,7 @@ class RoomDatingPlugin
         if (isset($_POST['dinner'][$key]) && !empty($_POST['dinner'][$key])) { $dinner = $_POST['dinner'][$key]; } else { $dinner = 0; };
         if (isset($_POST['lunch'][$key]) && !empty($_POST['lunch'][$key])) { $lunch = $_POST['lunch'][$key]; } else { $lunch = 0; };
         if (isset($_POST['breakfast'][$key]) && !empty($_POST['breakfast'][$key])) { $breakfast = $_POST['breakfast'][$key]; } else { $breakfast = 0; };
+        if (isset($_POST['note'][$key]) && !empty($_POST['note'][$key])) { $note = $_POST['note'][$key]; } else { $note = 0; };
         if (isset($_POST['id'][$key]) && !empty($_POST['id'][$key])) { $id = $_POST['id'][$key]; };
         if (isset($_POST['thedate'][$key]) && !empty($_POST['thedate'][$key])) {
           $thedate = $_POST['thedate'][$key];
@@ -157,7 +158,8 @@ class RoomDatingPlugin
                 'persons'   => $persons,
                 'breakfast' => $breakfast,
                 'lunch'     => $lunch,
-                'dinner'    => $dinner
+                'dinner'    => $dinner,
+                'note'      => $note
               ),
               array( 'id' => $id )
             );
@@ -168,41 +170,96 @@ class RoomDatingPlugin
               WHERE id = $resa_id"
             );
             $room_id = $this_resa->room_id;
-            $exist_days = $wpdb->get_results(
-              "SELECT *
-              FROM {$wpdb->prefix}resa_day as day
-              JOIN {$wpdb->prefix}resa as resa
-              ON day.resa_id = resa.id
-              WHERE thedate = \"$thedate\"
-              AND resa.room_id = $room_id
-              "
-            );
-            if (!empty($exist_days)) {
-              $the_room_name = $wpdb->get_row(
-                "SELECT post_title
-                FROM {$wpdb->prefix}posts
-                WHERE id = $room_id"
-              ); ?>
-              <?php
-              foreach ($exist_days as $exist_day) {
-                $date = new DateTime($exist_day->thedate); ?>
+            if (isset(get_post_meta( $room_id )['chambre'])) {
+              $exist_days = $wpdb->get_results(
+                "SELECT *
+                FROM {$wpdb->prefix}resa_day as day
+                JOIN {$wpdb->prefix}resa as resa
+                ON day.resa_id = resa.id
+                WHERE thedate = \"$thedate\"
+                AND resa.room_id = $room_id"
+              );
+              if (!empty($exist_days)) {
+                $the_room_name = $wpdb->get_row(
+                  "SELECT post_title
+                  FROM {$wpdb->prefix}posts
+                  WHERE id = $room_id"
+                ); ?>
+                <?php
+                foreach ($exist_days as $exist_day) {
+                  $date = new DateTime($exist_day->thedate); ?>
                   <section class="alert"  style="color: white; background: red; margin: 0 15% 0 15%">
                     <p>En date du <?= $date->format('d/m/Y') ?>, une réservation pour le <?= $the_room_name->post_title ?> est déjà enregistrée.</p>
                     <p>Toutes les dates antérieures ont été annulée.</p>
                   </section>
                   <?php
+                }
+                $wpdb->delete( "{$wpdb->prefix}resa_day", array( 'resa_id' => $resa_id ) );
+                $wpdb->update( "{$wpdb->prefix}resa", array( 'booked' => 0 ), array( 'id' => $resa_id ) );
+              } else {
+                $wpdb->insert("{$wpdb->prefix}resa_day", array(
+                  'resa_id'   => $resa_id,
+                  'note'      => $note,
+                  'dinner'    => $dinner,
+                  'lunch'     => $lunch,
+                  'breakfast' => $breakfast,
+                  'persons'   => $persons,
+                  'thedate'   => $thedate
+                ));
               }
-              $wpdb->delete( "{$wpdb->prefix}resa_day", array( 'resa_id' => $resa_id ) );
-              $wpdb->update( "{$wpdb->prefix}resa", array( 'booked' => 0 ), array( 'id' => $resa_id ) );
-            } else {
-              $wpdb->insert("{$wpdb->prefix}resa_day", array(
-                'resa_id'   => $resa_id,
-                'dinner'    => $dinner,
-                'lunch'     => $lunch,
-                'breakfast' => $breakfast,
-                'persons'   => $persons,
-                'thedate'   => $thedate
-              ));
+            } elseif (isset(get_post_meta( $room_id )['dortoir'])) {
+              $exist_days = $wpdb->get_results(
+                "SELECT *
+                FROM {$wpdb->prefix}resa_day as day
+                JOIN {$wpdb->prefix}resa as resa
+                ON day.resa_id = resa.id
+                WHERE day.thedate = \"$thedate\"
+                AND resa.room_id = $room_id"
+              );
+              if (!empty($exist_days)) {
+                foreach ($exist_days as $exist_day) {
+                  $room_data = $wpdb->get_row(
+                    "SELECT bed, resa_id
+                    FROM {$wpdb->prefix}resa_day
+                    WHERE resa_id = $exist_day->id"
+                  );
+                  (int)$previous_beds = $room_data->bed;
+                  (int)$previous_resa_id = $room_data->resa_id;
+                  $bed = $previous_beds - $persons;
+                  $wpdb->insert("{$wpdb->prefix}resa_day", array(
+                    'resa_id'   => $resa_id,
+                    'note'      => $note,
+                    'dinner'    => $dinner,
+                    'lunch'     => $lunch,
+                    'breakfast' => $breakfast,
+                    'persons'   => $persons,
+                    'thedate'   => $thedate,
+                    'bed'       => $bed
+                  ));
+                  $wpdb->update("{$wpdb->prefix}resa_day",
+                    array(
+                      'bed'       => $bed
+                    ),
+                    array(
+                      'resa_id' => $previous_resa_id,
+                      'thedate' => $thedate
+                    )
+                  );
+                }
+              } else {
+                (int)$total_bed = get_post_meta( $room_id )['lits'][0];
+                $bed = $total_bed - $persons;
+                $wpdb->insert("{$wpdb->prefix}resa_day", array(
+                  'resa_id'   => $resa_id,
+                  'note'      => $note,
+                  'dinner'    => $dinner,
+                  'lunch'     => $lunch,
+                  'breakfast' => $breakfast,
+                  'persons'   => $persons,
+                  'thedate'   => $thedate,
+                  'bed'       => $bed
+                ));
+              }
             }
           }
         }

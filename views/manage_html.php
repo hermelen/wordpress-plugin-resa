@@ -2,12 +2,21 @@
 $rooms = get_posts( array(
   'post_type' => 'page',
   'post_status' => 'publish',
-  'meta_key' => 'roomdating',
+  'meta_key' => 'chambre',
+) );
+
+$dormitories = get_posts( array(
+  'post_type' => 'page',
+  'post_status' => 'publish',
+  'meta_key' => 'dortoir',
 ) );
 
 $selectRooms = [];
 foreach ($rooms as $room) {
   array_push($selectRooms, [$room->ID, $room->post_title]);
+}
+foreach ($dormitories as $dormitory) {
+  array_push($selectRooms, [$dormitory->ID, $dormitory->post_title]);
 }
 $jsonRooms = json_encode($selectRooms); ?>
 
@@ -93,16 +102,16 @@ if (isset($last_resa)) {
       <tr>
         <form class="" action="#" method="post">
           <td style="border-top: 1px solid black;">
-            <input class="form-control" type="text" name="lastname" id="lastname" value="" placeholder="Nom nouveau client">
+            <input class="form-control" type="text" name="resa_lastname" id="lastname" value="" placeholder="Nom nouveau client">
           </td>
           <td style="border-top: 1px solid black;">
-            <input class="form-control" type="text" name="firstname" id="firstname" value="" placeholder="Prénom nouveau client">
+            <input class="form-control" type="text" name="resa_firstname" id="firstname" value="" placeholder="Prénom nouveau client">
           </td>
           <td style="border-top: 1px solid black;">
-            <input class="form-control" type="text" name="email" id="email" value="" placeholder="e-mail nouveau client">
+            <input class="form-control" type="text" name="resa_email" id="email" value="" placeholder="e-mail nouveau client">
           </td>
           <td style="border-top: 1px solid black;">
-            <input class="form-control" type="text" name="phone" id="phone" value="" placeholder="téléphone nouveau client">
+            <input class="form-control" type="text" name="resa_phone" id="phone" value="" placeholder="téléphone nouveau client">
           </td>
           <td style="border-top: 1px solid black;"></td>
           <td style="border-top: 1px solid black;">

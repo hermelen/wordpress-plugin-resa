@@ -54,6 +54,8 @@ class Resa
         breakfast INT,
         lunch INT,
         dinner INT,
+        note TEXT,
+        bed INT,
         resa_id INT NOT NULL,
         FOREIGN KEY (resa_id) REFERENCES {$wpdb->prefix}resa (id) )";
     // print_r($day_query);

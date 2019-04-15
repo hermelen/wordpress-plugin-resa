@@ -1,57 +1,86 @@
 jQuery(document).ready(function($){
-
+  if (typeof bookedDays !== 'undefined') {
+    console.log(bookedDays);
+  };
+  if (typeof availableBed !== 'undefined') {
+    console.log(availableBed);
+  };
   $(function() {
     var eventsArray = [];
-    if (typeof(bookedDays) !== 'undefined') {
+    var checkArray = [];
+    if (typeof bookedDays !== 'undefined') {
       $.each(bookedDays, function(index, value){
         endDate = new Date(value[1].thedate);
         endDate = endDate.setDate(endDate.getDate() + 1);
+        endDate = new Date(endDate);
+        displayTitle = value[2]+': réservé';
         eventsArray.push({
           start: new Date(value[0].thedate),
           end: endDate,
-          title: value[2]
+          title: displayTitle,
+          color: '#550000',
+          textColor: 'white'
         })
+      });
+    }
+    if (typeof availableBed !== 'undefined') {
+      $.each(availableBed, function(index, value){
+        checkValues = value[0]+value[1]+value[2];
+        existingRoom = $.inArray(checkValues, checkArray);
+        if (existingRoom === -1) {
+          day = new Date(value[0]);
+          room = value[1];
+          bed = value[2];
+          var title = room+': '+bed+' lits disp.';
+          checkArray.push(checkValues);
+          eventsArray.push({
+            start: day,
+            end: day,
+            title: title,
+            color: 'teal',
+            textColor: 'white'
+          })
+        }
       })
     }
-      $('#calendar-widget').fullCalendar({
-        height: "auto",
-        events: eventsArray
-      })
-      //------------------------DISPLAY RESA PAGE ----------------------------------
-      var today = new Date();
-      var thisMonth = dateYYYYMM(new Date());
+    $('#calendar-widget').fullCalendar({
+      height: "auto",
+      events: eventsArray
+    })
+    //------------------------DISPLAY RESA PAGE ----------------------------------
+    var today = new Date();
+    var thisMonth = dateYYYYMM(new Date());
 
+    hideDays(thisMonth);
+
+    $('.fc-today-button').click(function(){
+      today = new Date();
+      thisMonth = dateYYYYMM(new Date());
       hideDays(thisMonth);
+    })
 
-      $('.fc-today-button').click(function(){
-        today = new Date();
-        thisMonth = dateYYYYMM(new Date());
-        hideDays(thisMonth);
+    $('.fc-prev-button').click(function(){
+      today = today.setMonth(today.getMonth() - 1);
+      today = new Date(today);
+      thisMonth = dateYYYYMM(today);
+      hideDays(thisMonth);
+    })
+
+    $('.fc-next-button').click(function(){
+      today = today.setMonth(today.getMonth() + 1);
+      today = new Date(today);
+      thisMonth = dateYYYYMM(today);
+      hideDays(thisMonth);
+    })
+
+    function hideDays(checkedDays){
+      $('.td-date').each(function(){
+        $(this).closest('tr').show();
+        if (!$(this).html().startsWith(thisMonth)) {
+          $(this).closest('tr').hide();
+        }
       })
-
-      $('.fc-prev-button').click(function(){
-        today = today.setMonth(today.getMonth() - 1);
-        today = new Date(today);
-        thisMonth = dateYYYYMM(today);
-        hideDays(thisMonth);
-      })
-
-      $('.fc-next-button').click(function(){
-        today = today.setMonth(today.getMonth() + 1);
-        today = new Date(today);
-        thisMonth = dateYYYYMM(today);
-        hideDays(thisMonth);
-      })
-
-      function hideDays(checkedDays){
-        $('.td-date').each(function(){
-          $(this).closest('tr').show();
-          if (!$(this).html().startsWith(thisMonth)) {
-            $(this).closest('tr').hide();
-          }
-        })
-      }
-
+    }
   });
 
   // ------------------------USER-------------------------------------------------
@@ -107,11 +136,11 @@ jQuery(document).ready(function($){
         <table class="table">
           <tbody>
             <tr>
-              <td>Modification Client <input type="hidden" name="id" value="${user_id}"> </td>
-              <td><input type="text" class="form-control" name="lastname" value="${lastname}"></td>
-              <td><input type="text" class="form-control" name="firstname" value="${firstname}"></td>
-              <td><input type="text" class="form-control" name="email" value="${email}"></td>
-              <td><input type="text" class="form-control" name="phone" value="${phone}"></td>
+              <td>Modification Client <input type="hidden" name="resa_id" value="${user_id}"> </td>
+              <td><input type="text" class="form-control" name="resa_lastname" value="${lastname}"></td>
+              <td><input type="text" class="form-control" name="resa_firstname" value="${firstname}"></td>
+              <td><input type="text" class="form-control" name="resa_email" value="${email}"></td>
+              <td><input type="text" class="form-control" name="resa_phone" value="${phone}"></td>
               <td>
                 <button type="submit" class="save-user-edition-btn btn btn-secondary">Enreg.modif</button>
               </td>
@@ -148,8 +177,8 @@ jQuery(document).ready(function($){
   })
 
   // ------------------------DAYS-------------------------------------------------
-  // generate dates form
-  $('.add-date-to-resa').click(function(e){
+  // generate dates form on create resa
+  $('button.add-date-to-resa').click(function(e){
     e.preventDefault();
     var user_data = $(".pending_user_data").html();
     var room_data = $(".pending_room_data").html();
@@ -163,21 +192,22 @@ jQuery(document).ready(function($){
           <thead>
             <tr>
               <th><label for="thedate">Jour</label></th>
-              <th><label for="persons">Nbr.Lit</label></th>
-              <th><label for="breakfast">Nbr.Petit-déj</label></th>
-              <th><label for="lunch">Nbr.Déj</label></th>
               <th><label for="dinner">Nbr.Dîner</label></th>
+              <th><label for="persons">Nbr.Lit</label></th>
+              <th><label for="breakfast">Nbr.Petit-déj(lendemain)</label></th>
+              <th><label for="lunch">Nbr.Déj(lendemain)</label></th>
+              <th><label for="note">Notes</label></th>
             </tr>
           </thead>
           <tbody id="list-date">
           </tbody>
         </table>
         <button id="submit-all" type="submit" class="btn btn-success">Valider toutes les dates</button>
-      </form>
-    `)
+      </form>`
+    );
     var startdate = new Date($('input#start').val());
     var enddate = new Date($('input#end').val());
-    var resa_id = $('button.add-date-to-resa').attr('id');
+    var resa_id = $(this).attr('id');
     var dates = getDates(startdate, enddate);
     $.each(dates, function(key, date) {
       var sqlDate = dateYYYYMMDD(date);
@@ -186,13 +216,57 @@ jQuery(document).ready(function($){
           <input name="thedate[${key}]" type="hidden" value="${sqlDate}">
           <input name="resa_id[${key}]" type="hidden" value="${resa_id}"></td>
           <td>${sqlDate}</td>
+          <td><input class="form-control" name="dinner[${key}]" type="number"></td>
           <td><input class="form-control" name="persons[${key}]" type="number"></td>
           <td><input class="form-control" name="breakfast[${key}]" type="number"></td>
           <td><input class="form-control" name="lunch[${key}]" type="number"></td>
-          <td><input class="form-control" name="dinner[${key}]" type="number"></td>
+          <td><input class="form-control" name="note[${key}]" type="text"></td>
         </tr>
       `)
     });
+  })
+
+  // generate dates form on edit resa
+  $('.add-date-before-after').click(function(e){
+    e.preventDefault();
+    var container = $(this).closest('tr');
+    var user_data = $(container).find("td.user_data").html();
+    var room_data = $(container).find('td.room_data').html();
+    var resa_id = $(container).find('input.resa_id').val();
+    var date = [$(this).prev('input').val()];
+    $('section.day').prepend(`
+      <form action="#" method="post" style="margin-bottom: 3em" class="text-center">
+        <h3>${user_data}</h3>
+        <h4>${room_data}</h4>
+        <table class="table-dark">
+          <thead>
+            <tr>
+              <th><label for="thedate">Jour</label></th>
+              <th><label for="dinner">Nbr.Dîner</label></th>
+              <th><label for="persons">Nbr.Lit</label></th>
+              <th><label for="breakfast">Nbr.Petit-déj(lendemain)</label></th>
+              <th><label for="lunch">Nbr.Déj(lendemain)</label></th>
+              <th><label for="note">Notes</label></th>
+            </tr>
+          </thead>
+          <tbody id="list-date">
+          </tbody>
+        </table>
+        <button id="submit-all" type="submit" class="btn btn-success">Valider la nouvelle date</button>
+      </form>`
+    );
+    $('tbody#list-date').append(`
+      <tr>
+        <input name="thedate[0]" type="hidden" value="${date}">
+        <input name="resa_id[0]" type="hidden" value="${resa_id}"></td>
+        <td>${date}</td>
+        <td><input class="form-control" name="dinner[0]" type="number"></td>
+        <td><input class="form-control" name="persons[0]" type="number"></td>
+        <td><input class="form-control" name="breakfast[0]" type="number"></td>
+        <td><input class="form-control" name="lunch[0]" type="number"></td>
+        <td><input class="form-control" name="note[0]" type="text"></td>
+      </tr>
+    `)
   })
 
   //edit a day
@@ -204,10 +278,11 @@ jQuery(document).ready(function($){
     var room_title = $('tr#tr-day-'+day_id+' td:nth-child(2)').html();
     var user       = $('tr#tr-day-'+day_id+' td:nth-child(3)').html();
     var thedate    = $('tr#tr-day-'+day_id+' td:nth-child(4)').html();
-    var persons    = $('tr#tr-day-'+day_id+' td:nth-child(5)').html();
-    var breakfast  = $('tr#tr-day-'+day_id+' td:nth-child(6)').html();
-    var lunch      = $('tr#tr-day-'+day_id+' td:nth-child(7)').html();
-    var dinner     = $('tr#tr-day-'+day_id+' td:nth-child(8)').html();
+    var dinner     = $('tr#tr-day-'+day_id+' td:nth-child(5)').html();
+    var persons    = $('tr#tr-day-'+day_id+' td:nth-child(6)').html();
+    var breakfast  = $('tr#tr-day-'+day_id+' td:nth-child(7)').html();
+    var lunch      = $('tr#tr-day-'+day_id+' td:nth-child(8)').html();
+    var note       = $('tr#tr-day-'+day_id+' td:nth-child(9)').html();
     $('tr#tr-day-'+day_id).empty();
     $('tr#tr-day-'+day_id).html(`
       <td></td>
@@ -217,10 +292,12 @@ jQuery(document).ready(function($){
       <td style="color: red">${room_title}</td>
       <td style="color: red">${user}</td>
       <td style="color: red">${thedate}</td>
+      <td><input class="form-control" type="text" name="dinner[0]" value="${dinner}"></td>
       <td><input class="form-control" type="text" name="persons[0]" value="${persons}"></td>
       <td><input class="form-control" type="text" name="breakfast[0]" value="${breakfast}"></td>
       <td><input class="form-control" type="text" name="lunch[0]" value="${lunch}"></td>
-      <td><input class="form-control" type="text" name="dinner[0]" value="${dinner}"></td>
+      <td><textarea name="note[0]" rows="4">${note}</textarea></td>
+
       <td>
         <button class="icon-btn save-day">
           <i class="far fa-save" style="color: red"></i>
@@ -231,6 +308,7 @@ jQuery(document).ready(function($){
     `);
   })
 
+      // <td><input class="form-control" type="text" name="note[0]" value="${note}"></td>
 
   // Returns an array of dates between the two dates
   var getDates = function(startDate, endDate) {
@@ -277,6 +355,19 @@ jQuery(document).ready(function($){
   number -= 2;
 
   for (var i = 0; i < number; i++) {
+
+    var totDinner = 0;
+    tdDinner = $('.dinner-'+i);
+    tdDinner.each(function(){
+      if ($(this).html() != '') {
+        totDinner += parseInt($(this).html());
+      };
+    })
+    if ( totDinner == 0 ) { totDinner = "" }
+    $('tr#total-dinner').append(`
+      <td>${totDinner}</td>
+    `)
+
     var totPersons = 0;
     tdPersons = $('.persons-'+i);
     tdPersons.each(function(){
@@ -313,17 +404,17 @@ jQuery(document).ready(function($){
       <td>${totLunch}</td>
     `)
 
-    var totDinner = 0;
-    tdDinner = $('.dinner-'+i);
-    tdDinner.each(function(){
+    var totNote = "";
+    tdNote = $('.note-'+i);
+    tdNote.each(function(){
       if ($(this).html() != '') {
-        totDinner += parseInt($(this).html());
+        totNote += $(this).html()+" //";
       };
     })
-    if ( totDinner == 0 ) { totDinner = "" }
-    $('tr#total-dinner').append(`
-      <td>${totDinner}</td>
+    $('tr#total-note').append(`
+      <td>${totNote}</td>
     `)
+
   }
 
 
@@ -357,35 +448,5 @@ jQuery(document).ready(function($){
           sa = window.open('data:application/vnd.ms-excel, %EF%BB%BF' + encodeURIComponent(tab_text));
       return (sa);
   })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 })

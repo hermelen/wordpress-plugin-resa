@@ -6,41 +6,70 @@ $resas = $wpdb->get_results(
 );
 
 $booked_days = [];
+$dormitories_bed = [];
 for ($i=0; $i < count($resas) ; $i++) {
 
   $resa_id = $resas[$i]->id;
   $room_id = $resas[$i]->room_id;
 
-  $booked_days[$i]['dates'] = $wpdb->get_results(
-    "SELECT thedate
+  $available_beds = $wpdb->get_results(
+    "SELECT bed
     FROM {$wpdb->prefix}resa_day
     WHERE resa_id = $resa_id
     ORDER BY thedate"
   );
+
   $room_title = $wpdb->get_row(
     "SELECT post_title
     FROM {$wpdb->prefix}posts
     WHERE ID = $room_id"
   );
-  $booked_days[$i]['post_title'] = $room_title->post_title;
+
+  if (isset($available_beds[0]->bed) && !empty($available_beds[0]->bed)) {
+    $dormitories = $wpdb->get_results(
+      "SELECT thedate, bed
+      FROM {$wpdb->prefix}resa_day
+      WHERE resa_id = $resa_id
+      ORDER BY thedate"
+    );
+    for ($j=0; $j < count($dormitories); $j++) {
+      $singleDormitory = [
+        $dormitories[$j]->thedate,
+        $room_title->post_title,
+        $dormitories[$j]->bed
+      ];
+      array_push($dormitories_bed, $singleDormitory);
+    }
+  } else {
+    $booked_days[$i]['dates'] = $wpdb->get_results(
+      "SELECT thedate
+      FROM {$wpdb->prefix}resa_day
+      WHERE resa_id = $resa_id
+      ORDER BY thedate"
+    );
+    $booked_days[$i]['post_title'] = $room_title->post_title;
+    $booked_days[$i]['bed'] = $available_beds[0]->bed;
+  }
 };
+// debug($dormitories_bed);
 
 for ($i=0; $i < count($booked_days) ; $i++) {
   $first = reset($booked_days[$i]['dates']);
   $last = end($booked_days[$i]['dates']);
   $title = $booked_days[$i]['post_title'];
-  $booked_days[$i] = [$first, $last, $title];
+  $bed = $booked_days[$i]['bed'];
+  $booked_days[$i] = [$first, $last, $title, $bed];
 }
 
 $booked_days=json_encode($booked_days);
-
+$dormitories_bed=json_encode($dormitories_bed);
 ?>
 
 <h1><?= get_admin_page_title() ?></h1>
 <p>Bienvenue sur la page d'accueil des réservations</p>
-<div class="resa_container" style="display: flex;">
+<div class="resa_container">
   <section class='edit'></section>
-  <section class="day" style="width: 70%;">
+  <section class="day">
     <section class="user_detail"></section>
     <form class="edit-day-form" action="#" method="post">
       <table class="table">
@@ -50,10 +79,11 @@ $booked_days=json_encode($booked_days);
             <th>Chambre</th>
             <th>Client</th>
             <th>Date</th>
+            <th><i class="fas fa-utensils"></i></th>
             <th><i class="fas fa-bed"></i></th>
             <th><i class="fas fa-coffee"></i></th>
             <th><i class="fas fa-shopping-basket"></th>
-            <th><i class="fas fa-utensils"></i></th>
+            <th><i class="fas fa-sticky-note"></i></th>
             <th></th>
             <th></th>
             <th></th>
@@ -97,77 +127,82 @@ $booked_days=json_encode($booked_days);
               $day_after = date('Y-m-d', strtotime($last_day . ' +1 day')); ?>
               <tbody>
                 <tr id="tr-day-<?= $days[0]->id ?>" style="background: <?php echo $color ?>">
-                  <td>
+                  <td style="border-top: 1px solid #212529;">
                     <button class="icon-btn info" data="<?= htmlspecialchars(json_encode($user_info)) ?>"><i class="fas fa-info"></i></button>
                   </td>
-                  <td><?php echo $room->post_title ?></td>
-                  <td><?php echo $user->lastname."<br>".$user->firstname ?></td>
-                  <td style="border-top: 1px solid black;" class="td-date"><?php echo $days[0]->thedate ?></td>
-                  <td><?php echo $days[0]->persons ?></td>
-                  <td><?php echo $days[0]->breakfast ?></td>
-                  <td><?php echo $days[0]->lunch ?></td>
-                  <td><?php echo $days[0]->dinner ?></td>
-                  <td><button class="icon-btn edit-day" id="day-<?= $days[0]->id ?>" resa_id="<?= $resa_id ?>"><i class="far fa-edit"></button></td>
-                  <td>
+                  <td style="border-top: 1px solid #212529;" class="room_data"><?php echo $room->post_title ?></td>
+                  <td style="border-top: 1px solid #212529;" class="user_data"><?php echo $user->lastname." ".$user->firstname ?></td>
+                  <td style="border-top: 1px solid #212529;" class="td-date"><?php echo $days[0]->thedate ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->dinner ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->persons ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->breakfast ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->lunch ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->note === "0" ? "" : $days[0]->note ?></td>
+                  <td style="border-top: 1px solid #212529;"><button class="icon-btn edit-day" id="day-<?= $days[0]->id ?>" resa_id="<?= $resa_id ?>"><a title="Modifier cette date"><i class="far fa-edit"></i></a></button></td>
+                  <td style="border-top: 1px solid #212529;">
                     <form action="#" method="post">
-                      <input type="hidden" name="resa_id[0]" value="<?php echo $resa->id ?>">
+                      <input type="hidden" name="resa_id[0]" class="resa_id" value="<?php echo $resa->id ?>">
                       <input type="hidden" name="dinner[0]" value="<?php echo $days[0]->dinner ?>">
-                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
-                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
                       <input type="hidden" name="persons[0]" value="<?php echo $days[0]->persons ?>">
+                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
+                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
+                      <input type="hidden" name="note[0]" value="<?php echo $days[0]->note ?>">
                       <input type="hidden" name="thedate[0]" value="<?= $day_before ?>">
-                      <button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><i class="fas fa-plus"></i></button>
+                      <button class="icon-btn add-date-before-after" id="day-<?= $days[0]->id ?>"><a title="Ajouter avant cette date"><i class="fas fa-plus"></i></a></button>
                     </form>
                   </td>
-                  <td>
+                  <td style="border-top: 1px solid #212529;">
                     <form action="#" method="post">
                       <input type="hidden" name="delete_day_id" value="<?php echo $days[0]->id ?>">
                       <!-- <input type="submit" name="delete_day" value="Supprimer"> -->
-                      <button type="submit" class="icon-btn"><i class="far fa-trash-alt"></i></button>
+                      <button type="submit" class="icon-btn"><a title="Supprimer cette date"><i class="far fa-trash-alt"></i></a></button>
                     </form>
                   </td>
                 </tr><?php
                 for ($i=1; $i < count($days)-1 ; $i++) { ?>
                   <tr id="tr-day-<?= $days[$i]->id ?>" style="background: <?php echo $color ?>">
                     <td style="color: grey"></td>
-                    <td style="color: grey"><?php echo $room->post_title ?></td>
-                    <td style="color: grey"><?php echo $user->lastname."<br>".$user->firstname ?></td>
+                    <td style="color: grey" class="room_data"><?php echo $room->post_title ?></td>
+                    <td style="color: grey" class="user_data"><?php echo $user->lastname." ".$user->firstname ?></td>
                     <td class="td-date"><?php echo $days[$i]->thedate ?></td>
+                    <td><?php echo $days[$i]->dinner ?></td>
                     <td><?php echo $days[$i]->persons ?></td>
                     <td><?php echo $days[$i]->breakfast ?></td>
                     <td><?php echo $days[$i]->lunch ?></td>
-                    <td><?php echo $days[$i]->dinner ?></td>
-                    <td><button class="icon-btn edit-day" id="day-<?= $days[$i]->id ?>" resa_id="<?= $resa_id ?>"><i class="far fa-edit"></button></td>
+                    <td><?php echo $days[$i]->note ?></td>
+                    <td><button class="icon-btn edit-day" id="day-<?= $days[$i]->id ?>" resa_id="<?= $resa_id ?>"><a title="Modifier cette date"><i class="far fa-edit"></i></a></button></td>
                     <td></td>
                     <td></td>
                   </tr><?php
                 } ?>
                 <tr id="tr-day-<?= $days[count($days)-1]->id ?>" style="background: <?php echo $color ?>">
                   <td></td>
-                  <td style="color: grey"><?php echo $room->post_title ?></td>
-                  <td style="color: grey"><?php echo $user->lastname."<br>".$user->firstname ?></td>
+                  <td style="color: grey" class="room_data"><?php echo $room->post_title ?></td>
+                  <td style="color: grey" class="user_data"><?php echo $user->lastname." ".$user->firstname ?></td>
                   <td class="td-date"><?php echo $days[count($days)-1]->thedate ?></td>
+                  <td><?php echo $days[count($days)-1]->dinner ?></td>
                   <td><?php echo $days[count($days)-1]->persons ?></td>
                   <td><?php echo $days[count($days)-1]->breakfast ?></td>
                   <td><?php echo $days[count($days)-1]->lunch ?></td>
-                  <td><?php echo $days[count($days)-1]->dinner ?></td>
-                  <td><button class="icon-btn edit-day" id="day-<?= $days[count($days)-1]->id ?>" resa_id="<?= $resa_id ?>"><i class="far fa-edit"></button></td>
+                  <td><?php echo $days[count($days)-1]->note ?></td>
+                  <td><button class="icon-btn edit-day" id="day-<?= $days[count($days)-1]->id ?>" resa_id="<?= $resa_id ?>"><a title="Modifier cette date"><i class="far fa-edit"></i></a></button></td>
                   <td>
                     <form action="#" method="post">
-                      <input type="hidden" name="resa_id[0]" value="<?php echo $resa->id ?>">
+                      <input type="hidden" name="resa_id[0]" class="resa_id" value="<?php echo $resa->id ?>">
                       <input type="hidden" name="dinner[0]" value="<?php echo $days[count($days)-1]->dinner ?>">
-                      <input type="hidden" name="lunch[0]" value="<?php echo $days[count($days)-1]->lunch ?>">
-                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[count($days)-1]->breakfast ?>">
                       <input type="hidden" name="persons[0]" value="<?php echo $days[count($days)-1]->persons ?>">
+                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[count($days)-1]->breakfast ?>">
+                      <input type="hidden" name="lunch[0]" value="<?php echo $days[count($days)-1]->lunch ?>">
+                      <input type="hidden" name="note[0]" value="<?php echo $days[count($days)-1]->note ?>">
                       <input type="hidden" name="thedate[0]" value="<?= $day_after ?>">
-                      <button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><i class="fas fa-plus"></i></button>
+                      <button class="icon-btn add-date-before-after" id="day-<?= $days[$i]->id ?>"><a title="Ajouter après cette date"><i class="fas fa-plus"></i></a></button>
                     </form>
                   </td>
                   <td>
                     <form action="#" method="post">
                       <input type="hidden" name="delete_day_id" value="<?php echo $days[count($days)-1]->id ?>">
                       <!-- <input type="submit" name="delete_day" value="Supprimer"> -->
-                      <button type="submit" class="icon-btn"><i class="far fa-trash-alt"></i></button>
+                      <button type="submit" class="icon-btn"><a title="Supprimer cette date"><i class="far fa-trash-alt"></i></a></button>
                     </form>
                   </td>
                 </tr>
@@ -179,62 +214,66 @@ $booked_days=json_encode($booked_days);
               $day_after = date('Y-m-d', strtotime($last_day . ' +1 day')); ?>
               <tbody>
                 <tr id="tr-day-<?= $days[0]->id ?>" style="background: <?php echo $color ?>">
-                  <td>
+                  <td style="border-top: 1px solid #212529;">
                     <button class="icon-btn info" data="<?= htmlspecialchars(json_encode($user_info)) ?>"><i class="fas fa-info"></i></button>
                   </td>
-                  <td><?php echo $room->post_title ?></td>
-                  <td><?php echo $user->lastname."<br>".$user->firstname ?></td>
-                  <td style="border-top: 1px solid black;" class="td-date"><?php echo $days[0]->thedate ?></td>
-                  <td><?php echo $days[0]->persons ?></td>
-                  <td><?php echo $days[0]->breakfast ?></td>
-                  <td><?php echo $days[0]->lunch ?></td>
-                  <td><?php echo $days[0]->dinner ?></td>
-                  <td><button class="icon-btn edit-day" id="day-<?= $days[0]->id ?>" resa_id="<?= $resa_id ?>"><i class="far fa-edit"></button></td>
-                  <td>
+                  <td style="border-top: 1px solid #212529;" class="room_data"><?php echo $room->post_title ?></td>
+                  <td style="border-top: 1px solid #212529;" class="user_data"><?php echo $user->lastname." ".$user->firstname ?></td>
+                  <td style="border-top: 1px solid #212529;" class="td-date"><?php echo $days[0]->thedate ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->dinner ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->persons ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->breakfast ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->lunch ?></td>
+                  <td style="border-top: 1px solid #212529;"><?php echo $days[0]->note === "0" ? "" : $days[0]->note ?></td>
+                  <td style="border-top: 1px solid #212529;"><button class="icon-btn edit-day" id="day-<?= $days[0]->id ?>" resa_id="<?= $resa_id ?>"><a title="Modifier cette date"><i class="far fa-edit"></i></a></button></td>
+                  <td style="border-top: 1px solid #212529;">
                     <form action="#" method="post">
-                      <input type="hidden" name="resa_id[0]" value="<?php echo $resa->id ?>">
+                      <input type="hidden" name="resa_id[0]" class="resa_id" value="<?php echo $resa->id ?>">
                       <input type="hidden" name="dinner[0]" value="<?php echo $days[0]->dinner ?>">
-                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
-                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
                       <input type="hidden" name="persons[0]" value="<?php echo $days[0]->persons ?>">
+                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
+                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
+                      <input type="hidden" name="note[0]" value="<?php echo $days[0]->note ?>">
                       <input type="hidden" name="thedate[0]" value="<?= $day_before ?>">
-                      <button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><i class="fas fa-plus"></i></button>
+                      <button class="icon-btn add-date-before-after" id="day-<?= $days[0]->id ?>"><a title="Ajouter avant cette date"><i class="fas fa-plus"></i></a></button>
                     </form>
                   </td>
-                  <td>
+                  <td style="border-top: 1px solid #212529;">
                     <form action="#" method="post">
                       <input type="hidden" name="delete_day_id" value="<?php echo $days[0]->id ?>">
                       <!-- <input type="submit" name="delete_day" value="Supprimer"> -->
-                      <button type="submit" class="icon-btn"><i class="far fa-trash-alt"></i></button>
+                      <button type="submit" class="icon-btn"><a title="Supprimer cette date"><i class="far fa-trash-alt"></i></a></button>
                     </form>
                   </td>
                 </tr>
                 <tr id="tr-day-<?= $days[1]->id ?>" style="background: <?php echo $color ?>">
                   <td></td>
-                  <td style="color: grey;"><?php echo $room->post_title ?></td>
-                  <td style="color: grey;"><?php echo $user->lastname."<br>".$user->firstname ?></td>
+                  <td style="color: grey;" class="room_data"><?php echo $room->post_title ?></td>
+                  <td style="color: grey;" class="user_data"><?php echo $user->lastname." ".$user->firstname ?></td>
                   <td class="td-date"><?php echo $days[1]->thedate ?></td>
+                  <td><?php echo $days[1]->dinner ?></td>
                   <td><?php echo $days[1]->persons ?></td>
                   <td><?php echo $days[1]->breakfast ?></td>
                   <td><?php echo $days[1]->lunch ?></td>
-                  <td><?php echo $days[1]->dinner ?></td>
-                  <td><button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><i class="far fa-edit" resa_id="<?= $resa_id ?>"></button></td>
+                  <td><?php echo $days[1]->note ?></td>
+                  <td><button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><a title="Modifier cette date"><i class="far fa-edit" resa_id="<?= $resa_id ?>"></a></button></td>
                   <td>
                     <form action="#" method="post">
-                      <input type="hidden" name="resa_id[0]" value="<?php echo $resa->id ?>">
+                      <input type="hidden" name="resa_id[0]" class="resa_id" value="<?php echo $resa->id ?>">
                       <input type="hidden" name="dinner[0]" value="<?php echo $days[1]->dinner ?>">
-                      <input type="hidden" name="lunch[0]" value="<?php echo $days[1]->lunch ?>">
-                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[1]->breakfast ?>">
                       <input type="hidden" name="persons[0]" value="<?php echo $days[1]->persons ?>">
+                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[1]->breakfast ?>">
+                      <input type="hidden" name="lunch[0]" value="<?php echo $days[1]->lunch ?>">
+                      <input type="hidden" name="note[0]" value="<?php echo $days[1]->note ?>">
                       <input type="hidden" name="thedate[0]" value="<?= $day_after ?>">
-                      <button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><i class="fas fa-plus"></i></button>
+                      <button class="icon-btn add-date-before-after" id="day-<?= $days[1]->id ?>"><a title="Ajouter après cette date"><i class="fas fa-plus"></i></a></button>
                     </form>
                   </td>
                   <td>
                     <form action="#" method="post">
                       <input type="hidden" name="delete_day_id" value="<?php echo $days[1]->id ?>">
                       <!-- <input type="submit" name="delete_day" value="Supprimer"> -->
-                      <button type="submit" class="icon-btn"><i class="far fa-trash-alt"></i></button>
+                      <button type="submit" class="icon-btn"><a title="Supprimer cette date"><i class="far fa-trash-alt"></i></a></button>
                     </form>
                   </td>
                 </tr>
@@ -248,32 +287,35 @@ $booked_days=json_encode($booked_days);
                   <td>
                     <button class="icon-btn info" data="<?= htmlspecialchars(json_encode($user_info)) ?>"><i class="fas fa-info"></i></button>
                   </td>
-                  <td><?php echo $room->post_title ?></td>
-                  <td><?php echo $user->lastname."<br>".$user->firstname ?></td>
+                  <td class="room_data"><?php echo $room->post_title ?></td>
+                  <td class="user_data"><?php echo $user->lastname." ".$user->firstname ?></td>
                   <td class="td-date"><?php echo $days[0]->thedate ?></td>
+                  <td><?php echo $days[0]->dinner ?></td>
                   <td><?php echo $days[0]->persons ?></td>
                   <td><?php echo $days[0]->breakfast ?></td>
                   <td><?php echo $days[0]->lunch ?></td>
-                  <td><?php echo $days[0]->dinner ?></td>
-                  <td><button class="icon-btn edit-day" id="day-<?= $days[0]->id ?>"><i class="far fa-edit" resa_id="<?= $resa_id ?>"></i></button></td>
+                  <td><?php echo $days[0]->note === "0" ? "" : $days[0]->note ?></td>
+                  <td><button class="icon-btn edit-day" id="day-<?= $days[0]->id ?>"><a title="Modifier cette date"><i class="far fa-edit" resa_id="<?= $resa_id ?>"></i></a></button></td>
                   <td>
                     <form action="#" method="post">
-                      <input type="hidden" name="resa_id[0]" value="<?php echo $resa->id ?>">
+                      <input type="hidden" name="resa_id[0]" class="resa_id" value="<?php echo $resa->id ?>">
                       <input type="hidden" name="dinner[0]" value="<?php echo $days[0]->dinner ?>">
-                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
-                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
                       <input type="hidden" name="persons[0]" value="<?php echo $days[0]->persons ?>">
+                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
+                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
+                      <input type="hidden" name="note[0]" value="<?php echo $days[0]->note ?>">
                       <input type="hidden" name="thedate[0]" value="<?= $day_before ?>">
-                      <button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><i class="fas fa-plus"></i></button>
+                      <button class="icon-btn add-date-before-after" id="day-<?= $days[0]->id ?>"><a title="Ajouter avant cette date"><i class="fas fa-plus"></i></a></button>
                     </form>
                     <form action="#" method="post">
-                      <input type="hidden" name="resa_id[0]" value="<?php echo $resa->id ?>">
+                      <input type="hidden" name="resa_id[0]" class="resa_id" value="<?php echo $resa->id ?>">
                       <input type="hidden" name="dinner[0]" value="<?php echo $days[0]->dinner ?>">
-                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
-                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
                       <input type="hidden" name="persons[0]" value="<?php echo $days[0]->persons ?>">
+                      <input type="hidden" name="breakfast[0]" value="<?php echo $days[0]->breakfast ?>">
+                      <input type="hidden" name="lunch[0]" value="<?php echo $days[0]->lunch ?>">
+                      <input type="hidden" name="note[0]" value="<?php echo $days[0]->note ?>">
                       <input type="hidden" name="thedate[0]" value="<?= $day_after ?>">
-                      <button class="icon-btn edit-day" id="day-<?= $days[1]->id ?>"><i class="fas fa-plus"></i></button>
+                      <button class="icon-btn add-date-before-after" id="day-<?= $days[0]->id ?>"><a title="Ajouter après cette date"><i class="fas fa-plus"></i></a></button>
                     </form>
                   </td>
                   <td>
@@ -281,7 +323,7 @@ $booked_days=json_encode($booked_days);
                       <input type="hidden" name="delete_resa_id" value="<?php echo $resa->id ?>">
                       <input type="hidden" name="delete_day_id" value="<?php echo $days[0]->id ?>">
                       <!-- <input type="submit" name="delete_day" value="Supprimer"> -->
-                      <button type="submit" class="icon-btn"><i class="far fa-trash-alt"></i></button>
+                      <button type="submit" class="icon-btn"><a title="Supprimer cette date"><i class="far fa-trash-alt"></i></a></button>
                     </form>
                   </td>
                 </tr>
@@ -292,12 +334,13 @@ $booked_days=json_encode($booked_days);
       </table>
     </form>
   </section>
-  <section class="calendar" style="width: 30%;">
+  <section class="calendar">
     <div id="calendar-widget"></div>
   </section>
 </div>
 
 
 <script type="text/javascript">
-  var bookedDays = <?= $booked_days ?>;
+  var bookedDays = <?php echo $booked_days ?>;
+  var availableBed = <?php echo $dormitories_bed ?>;
 </script>

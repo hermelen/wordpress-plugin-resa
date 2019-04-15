@@ -83,37 +83,7 @@ if (isset($_POST['week']) && !empty($_POST['week'])) {
     <?php
     foreach ($rooms as $room) { ?>
       <tr>
-        <td rowspan="4"><?= $room->post_title ?></td>
-        <td>Petit-déj</td>
-        <?php foreach ($days as $key=>$day) { ?>
-
-          <?php $resa = $wpdb->get_row(
-            "SELECT breakfast
-            FROM {$wpdb->prefix}resa_day as day
-            JOIN {$wpdb->prefix}resa as resa
-            ON day.resa_id = resa.id
-            WHERE resa.room_id = $room->ID
-            AND day.thedate = \"$day\""
-          ); ?>
-            <td class="breakfast-<?= $key ?>"><?= (!empty($resa)) ? $resa->breakfast : ""; ?></td>
-        <?php } ?>
-      </tr>
-      <tr>
-        <td>Déj</td>
-        <?php foreach ($days as $key=>$day) { ?>
-
-          <?php $resa = $wpdb->get_row(
-            "SELECT lunch
-            FROM {$wpdb->prefix}resa_day as day
-            JOIN {$wpdb->prefix}resa as resa
-            ON day.resa_id = resa.id
-            WHERE resa.room_id = $room->ID
-            AND day.thedate = \"$day\""
-          ); ?>
-            <td class="lunch-<?= $key ?>"><?= (!empty($resa)) ? $resa->lunch : ""; ?></td>
-        <?php } ?>
-      </tr>
-      <tr>
+        <td rowspan="5"><?= $room->post_title ?></td>
         <td>Dîner</td>
         <?php foreach ($days as $key=>$day) { ?>
 
@@ -125,7 +95,7 @@ if (isset($_POST['week']) && !empty($_POST['week'])) {
             WHERE resa.room_id = $room->ID
             AND day.thedate = \"$day\""
           ); ?>
-            <td class="dinner-<?= $key ?>"><?= (!empty($resa)) ? $resa->dinner : ""; ?></td>
+          <td class="dinner-<?= $key ?>"><?= (!empty($resa)) ? $resa->dinner : ""; ?></td>
         <?php } ?>
       </tr>
       <tr>
@@ -143,20 +113,68 @@ if (isset($_POST['week']) && !empty($_POST['week'])) {
           <td class="persons-<?= $key ?>"><?= (!empty($resa)) ? $resa->persons : ""; ?></td>
         <?php } ?>
       </tr>
+      <tr>
+        <td>Petit-déj(lendemain)</td>
+        <?php foreach ($days as $key=>$day) { ?>
+
+          <?php $resa = $wpdb->get_row(
+            "SELECT breakfast
+            FROM {$wpdb->prefix}resa_day as day
+            JOIN {$wpdb->prefix}resa as resa
+            ON day.resa_id = resa.id
+            WHERE resa.room_id = $room->ID
+            AND day.thedate = \"$day\""
+          ); ?>
+            <td class="breakfast-<?= $key ?>"><?= (!empty($resa)) ? $resa->breakfast : ""; ?></td>
+        <?php } ?>
+      </tr>
+      <tr>
+        <td>Déj(lendemain)</td>
+        <?php foreach ($days as $key=>$day) { ?>
+
+          <?php $resa = $wpdb->get_row(
+            "SELECT lunch
+            FROM {$wpdb->prefix}resa_day as day
+            JOIN {$wpdb->prefix}resa as resa
+            ON day.resa_id = resa.id
+            WHERE resa.room_id = $room->ID
+            AND day.thedate = \"$day\""
+          ); ?>
+            <td class="lunch-<?= $key ?>"><?= (!empty($resa)) ? $resa->lunch : ""; ?></td>
+        <?php } ?>
+      </tr>
+      <tr>
+        <td>Note</td>
+        <?php foreach ($days as $key=>$day) { ?>
+
+          <?php $resa = $wpdb->get_row(
+            "SELECT note
+            FROM {$wpdb->prefix}resa_day as day
+            JOIN {$wpdb->prefix}resa as resa
+            ON day.resa_id = resa.id
+            WHERE resa.room_id = $room->ID
+            AND day.thedate = \"$day\""
+          ); ?>
+            <td class="note-<?= $key ?>"><?= (!empty($resa)) ? $resa->note : ""; ?></td>
+        <?php } ?>
+      </tr>
     <?php } ?>
+    <tr id="total-dinner">
+      <td rowspan="2">Jour arrivée</td>
+      <td>Dîner</td>
+    </tr>
+    <tr id="total-persons">
+      <td>Couchages</td>
+    </tr>
     <tr id="total-breakfast">
-      <td rowspan="2">Matin</td>
+      <td rowspan="3">Lendemain</td>
       <td>Petit-déj</td>
     </tr>
     <tr id="total-lunch">
       <td>Déj</td>
     </tr>
-    <tr id="total-dinner">
-      <td rowspan="2">Après-midi</td>
-      <td>Dîner</td>
-    </tr>
-    <tr id="total-persons">
-      <td>Couchages</td>
+    <tr id="total-note">
+      <td>Notes</td>
     </tr>
   </tbody>
   </table>
