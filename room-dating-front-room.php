@@ -58,9 +58,10 @@ for ($i=0; $i < count($resas) ; $i++) {
 for ($i=0; $i < count($booked_days) ; $i++) {
   $first = reset($booked_days[$i]['dates']);
   $last = end($booked_days[$i]['dates']);
-  $title = $booked_days[$i]['post_title'];
+  // $title = $booked_days[$i]['post_title'];
   $bed = $booked_days[$i]['bed'];
-  $booked_days[$i] = [$first, $last, $title];
+  // $booked_days[$i] = [$first, $last, $title];
+  $booked_days[$i] = [$first, $last];
 }
 
 $booked_days=json_encode($booked_days);
